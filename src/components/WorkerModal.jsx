@@ -17,14 +17,14 @@ const WorkerModal = ({ isOpen, onClose, onSave, editingWorker }) => {
                 setEmail(editingWorker.person?.email || '');
                 // Cortar la fecha si viene con hora (ej: 1990-01-01T00:00:00)
                 setBirthDate(editingWorker.person?.birth_date ? editingWorker.person.birth_date.split('T')[0] : '');
-                setReliability(editingWorker.reliability || 'Alta');
+                setReliability(editingWorker.reliability || 'excelente');
             } else {
                 setFirstName('');
                 setLastName('');
                 setCi('');
                 setEmail('');
                 setBirthDate('');
-                setReliability('Alta');
+                setReliability('excelente');
             }
         }
     }, [isOpen, editingWorker]);
@@ -81,9 +81,10 @@ const WorkerModal = ({ isOpen, onClose, onSave, editingWorker }) => {
                     <div>
                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Nivel de Confiabilidad</label>
                         <select value={reliability} onChange={(e) => setReliability(e.target.value)} className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                            <option value="Alta">Alta</option>
-                            <option value="Media">Media</option>
-                            <option value="Baja">Baja</option>
+                            <option value="Excelente">excelente</option>
+                            <option value="Alta">bueno</option>
+                            <option value="Media">riesgoso</option>
+                            <option value="Baja">No Recomendable</option>
                         </select>
                     </div>
 
