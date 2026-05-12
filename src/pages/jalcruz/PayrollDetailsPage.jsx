@@ -20,33 +20,43 @@ const PayrollDetailsPage = () => {
     const [newExtraAmount, setNewExtraAmount] = useState(''); // NUEVO: Estado para el pasaje en el modal
     const [newStatus, setNewStatus] = useState('asistio');
 
+    const [allWorkersForModal, setAllWorkersForModal] = useState([]);
+
     useEffect(() => {
-        const fetchExcelData = async () => {
+        const fetchPayrollData = async () => {
             try {
-                const [payrollRes, workersRes, attendanceRes] = await Promise.all([
+                // Ahora TODO viene desde un solo endpoint optimizado
+                // PERO seguimos necesitando cargar a TODOS los trabajadores 
+                // ÚNICAMENTE para llenar el "Select" del Modal de "Añadir Día"
+                const [payrollRes, allWorkersRes] = await Promise.all([
                     api.get(`/payrolls/${id}`),
-                    api.get('/worker-details'), 
-                    api.get('/attendances')
+                    api.get('/worker-details') // Solo para el dropdown del modal
                 ]);
 
-                setPayroll(payrollRes.data);
-                setWorkers(workersRes.data);
+                // 1. Setear la planilla
+                setPayroll(payrollRes.data.payroll);
                 
-                const filtered = attendanceRes.data
-                    .filter(a => a.payroll_id === parseInt(id))
-                    .map(a => ({
-                        ...a,
-                        date: typeof a.date === 'string' ? a.date.split('T')[0] : a.date
-                    }));
+                // 2. Setear los trabajadores ACTIVOS en la matriz
+                // Ya vienen filtrados desde Laravel
+                setWorkers(payrollRes.data.active_workers); 
                 
-                setAttendances(filtered);
+                // 3. Setear las asistencias (limpiando las fechas a YYYY-MM-DD)
+                const formattedAttendances = payrollRes.data.attendances.map(a => ({
+                    ...a,
+                    date: typeof a.date === 'string' ? a.date.split('T')[0] : a.date
+                }));
+                setAttendances(formattedAttendances);
+
+                // Guardamos TODOS los trabajadores en un estado separado SOLO para el Modal
+                setAllWorkersForModal(allWorkersRes.data);
+
             } catch (error) {
                 console.error("Error cargando vista:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchExcelData();
+        fetchPayrollData();
     }, [id]);
 
     const days = [...new Set(attendances.map(a => a.date))].sort();
@@ -122,6 +132,15 @@ const PayrollDetailsPage = () => {
             const newRecord = { ...res.data.data, date: res.data.data.date.split('T')[0] };
             
             setAttendances(prev => [...prev, newRecord]);
+
+            setWorkers(prevWorkers => {
+                const exists = prevWorkers.some(w => w.person_id === parseInt(newWorkerId));
+                if (!exists) {
+                    const newWorkerToDisplay = allWorkersForModal.find(w => w.person_id === parseInt(newWorkerId));
+                    return [...prevWorkers, newWorkerToDisplay];
+                }
+                return prevWorkers;
+            });
             
             setIsAddModalOpen(false);
             setNewDate('');
