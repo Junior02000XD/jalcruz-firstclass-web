@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import CompanyModal from '../../components/CompanyModal';
-import { Search, Plus, MoreHorizontal, Building, Edit2, Trash2, Map } from 'lucide-react';
+// Actualizamos las importaciones de Lucide para solo traer lo que necesitamos
+import { Search, Plus, Building, Edit2, Trash2, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const CompaniesPage = () => {
@@ -10,8 +11,8 @@ const CompaniesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     
+    // Solo necesitamos este estado, eliminamos activeDropdown
     const [editingCompany, setEditingCompany] = useState(null);
-    const [activeDropdown, setActiveDropdown] = useState(null);
 
     const fetchCompanies = async () => {
         try {
@@ -65,13 +66,11 @@ const CompaniesPage = () => {
                 alert("Error al eliminar.");
             }
         }
-        setActiveDropdown(null);
     };
 
     const handleOpenEdit = (company) => {
         setEditingCompany(company);
         setIsModalOpen(true);
-        setActiveDropdown(null);
     };
 
     const handleCloseModal = () => {
@@ -88,7 +87,7 @@ const CompaniesPage = () => {
     if (loading) return <div className="text-sm text-gray-500 mt-10 text-center">Cargando empresas...</div>;
 
     return (
-        <div className="flex flex-col h-full" onClick={() => setActiveDropdown(null)}>
+        <div className="flex flex-col h-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Empresas Clientes</h1>
@@ -103,14 +102,14 @@ const CompaniesPage = () => {
                             placeholder="Buscar empresa o NIT..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all w-64 shadow-sm"
+                            className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all w-full sm:w-64 shadow-sm"
                         />
                     </div>
                     <button 
                         onClick={() => setIsModalOpen(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95 whitespace-nowrap"
                     >
-                        <Plus size={16} /> Nueva Empresa
+                        <Plus size={16} /> <span className="hidden sm:inline">Nueva Empresa</span>
                     </button>
                 </div>
             </div>
@@ -123,7 +122,8 @@ const CompaniesPage = () => {
                                 <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-1/3">Nombre Comercial</th>
                                 <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-1/3">Razón Social</th>
                                 <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-1/4">NIT</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest text-right">Acciones</th>
+                                {/* Centramos el encabezado de acciones */}
+                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 text-sm">
@@ -150,40 +150,40 @@ const CompaniesPage = () => {
                                         <td className="px-6 py-3 text-gray-600 font-mono text-xs">
                                             {company.nit || '—'}
                                         </td>
-                                        <td className="px-6 py-3 text-right relative">
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setActiveDropdown(activeDropdown === company.id ? null : company.id);
-                                                }}
-                                                className="text-gray-400 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-100 transition-all"
-                                            >
-                                                <MoreHorizontal size={18} />
-                                            </button>
+                                        
+                                        {/* Implementación de los botones de acción limpios */}
+                                        <td className="px-6 py-3">
+                                            <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                
+                                                {/* Botón Ver Áreas */}
+                                                <Link 
+                                                    to={`/jalcruz/areas?companyId=${company.id}`}
+                                                    className="flex items-center gap-1.5 px-3 py-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 font-bold rounded-lg transition-colors"
+                                                    title="Ver áreas asociadas"
+                                                >
+                                                    <Map size={14} /> <span className="text-[11px] uppercase tracking-wider">Áreas</span>
+                                                </Link>
 
-                                            {activeDropdown === company.id && (
-                                                <div className="absolute right-8 top-10 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-10 py-1 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                                                    <Link 
-                                                        to={`/jalcruz/areas?companyId=${company.id}`}
-                                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center gap-2"
-                                                    >
-                                                        <Map size={14} className="text-blue-500" /> Ver Áreas
-                                                    </Link>
-                                                    <div className="border-t border-gray-100 my-1"></div>
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleOpenEdit(company); }}
-                                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                                    >
-                                                        <Edit2 size={14} className="text-gray-400" /> Editar
-                                                    </button>
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleDelete(company.id); }}
-                                                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                                                    >
-                                                        <Trash2 size={14} className="text-red-400" /> Eliminar
-                                                    </button>
-                                                </div>
-                                            )}
+                                                <div className="w-px h-5 bg-gray-200 mx-1"></div> {/* Separador visual */}
+
+                                                {/* Botón Editar */}
+                                                <button 
+                                                    onClick={() => handleOpenEdit(company)}
+                                                    className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Editar empresa"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+
+                                                {/* Botón Eliminar */}
+                                                <button 
+                                                    onClick={() => handleDelete(company.id)}
+                                                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Eliminar empresa"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

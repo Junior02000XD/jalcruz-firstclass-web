@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/Auth/LoginPage';
 import Dashboard from './pages/Dashboard';
 import WorkersPage from './pages/jalcruz/WorkersPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
@@ -9,12 +9,14 @@ import PayrollsPage from './pages/jalcruz/PayrollsPage';
 import PayrollDetailsPage from './pages/jalcruz/PayrollDetailsPage';
 import CompaniesPage from './pages/jalcruz/CompaniesPage';
 import UsersPage from './pages/admin/UsersPage';
+import RegisterPage from './pages/Auth/RegisterPage';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         
         {/* Agrupamos todas las rutas que llevan el diseño del Panel (Sidebar + Topbar) */}
         <Route element={ <AppLayout /> }>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios';
-import { useAuth } from '../context/AuthContext'; // Importamos el Hook
+import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext'; // Importamos el Hook
+import { Link } from 'react-router-dom';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -76,6 +77,15 @@ const LoginPage = () => {
                         Ingresar al Sistema
                     </button>
                 </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-600">
+                        ¿No tienes una cuenta?{' '}
+                        <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
+                            Solicitar acceso
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );
