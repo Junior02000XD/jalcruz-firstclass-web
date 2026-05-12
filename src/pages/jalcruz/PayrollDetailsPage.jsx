@@ -132,6 +132,27 @@ const PayrollDetailsPage = () => {
         }
     };
 
+    const handleDeleteRecord = async (recordId, workerId, date) => {
+        if (!window.confirm('¿Estás seguro de eliminar el registro de este trabajador en esta fecha?')) {
+            return;
+        }
+
+        const cellKey = `${workerId}-${date}`;
+        setSavingCells(prev => ({ ...prev, [cellKey]: true }));
+
+        try {
+            await api.delete(`/attendances/${recordId}`);
+            
+            // Si se eliminó correctamente, actualizamos el estado quitando ese registro
+            setAttendances(prev => prev.filter(a => a.id !== recordId));
+        } catch (error) {
+            console.error("Error eliminando registro:", error);
+            alert("Hubo un error al intentar eliminar la asistencia.");
+        } finally {
+            setSavingCells(prev => ({ ...prev, [cellKey]: false }));
+        }
+    };
+
     const handleExportExcel = async () => {
         try {
             const response = await api.get(`/payrolls/${id}/export`, {
@@ -250,14 +271,30 @@ const PayrollDetailsPage = () => {
                                                     <Fragment key={`${worker.id}-${date}`}>
                                                         <td className="p-0 border-r border-gray-200 relative min-w-[110px]">
                                                             <select 
-                                                                defaultValue={record?.status || ""}
-                                                                onChange={(e) => handleFieldChange(worker.person_id, date, 'status', e.target.value)}
-                                                                className={`w-full h-full min-h-[2.5rem] px-1 text-xs outline-none text-center appearance-none
+                                                                // CAMBIO IMPORTANTE: Usar 'value' en lugar de 'defaultValue' para poder controlarlo
+                                                                value={record?.status || ""}
+                                                                onChange={(e) => {
+                                                                    if (e.target.value === 'delete') {
+                                                                        handleDeleteRecord(record.id, worker.person_id, date);
+                                                                    } else {
+                                                                        handleFieldChange(worker.person_id, date, 'status', e.target.value);
+                                                                    }
+                                                                }}
+                                                                className={`w-full h-full min-h-[2.5rem] px-1 text-xs outline-none text-center appearance-none cursor-pointer
                                                                     ${record ? 'bg-green-50/20 text-gray-800 font-medium' : 'bg-transparent text-gray-400 hover:bg-gray-50'}`}
                                                             >
-                                                                <option value="" disabled>-</option>
+                                                                {/* Si no hay registro, mostramos el guion por defecto */}
+                                                                {!record && <option value="" disabled>-</option>}
+                                                                
                                                                 <option value="asistio">Asistió</option>
                                                                 <option value="falto">Faltó</option>
+                                                                
+                                                                {/* NUEVO: Si el registro existe, damos la opción de eliminarlo */}
+                                                                {record && (
+                                                                    <option value="delete" className="text-red-600 font-bold">
+                                                                        ❌ Eliminar
+                                                                    </option>
+                                                                )}
                                                             </select>
                                                         </td>
                                                         <td className="p-0 border-r border-gray-200 relative min-w-[90px]">
