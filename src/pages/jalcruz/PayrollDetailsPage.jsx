@@ -2,6 +2,8 @@ import { useState, useEffect, Fragment } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { ArrowLeft, Calendar, CheckCircle2, Loader2, Plus, Download } from 'lucide-react';
+// IMPORTAMOS EL MODAL EXTERNO
+import AttendanceModal from '../../components/AttendanceModal';
 
 const PayrollDetailsPage = () => {
     const { id } = useParams();
@@ -13,41 +15,24 @@ const PayrollDetailsPage = () => {
     const [savingCells, setSavingCells] = useState({});
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [newDate, setNewDate] = useState('');
-    const [newWorkerId, setNewWorkerId] = useState('');
-
-    const [newAmount, setNewAmount] = useState('');
-    const [newExtraAmount, setNewExtraAmount] = useState(''); // NUEVO: Estado para el pasaje en el modal
-    const [newStatus, setNewStatus] = useState('asistio');
-
     const [allWorkersForModal, setAllWorkersForModal] = useState([]);
 
     useEffect(() => {
         const fetchPayrollData = async () => {
             try {
-                // Ahora TODO viene desde un solo endpoint optimizado
-                // PERO seguimos necesitando cargar a TODOS los trabajadores 
-                // ÚNICAMENTE para llenar el "Select" del Modal de "Añadir Día"
                 const [payrollRes, allWorkersRes] = await Promise.all([
                     api.get(`/payrolls/${id}`),
-                    api.get('/worker-details') // Solo para el dropdown del modal
+                    api.get('/worker-details') 
                 ]);
 
-                // 1. Setear la planilla
                 setPayroll(payrollRes.data.payroll);
-                
-                // 2. Setear los trabajadores ACTIVOS en la matriz
-                // Ya vienen filtrados desde Laravel
                 setWorkers(payrollRes.data.active_workers); 
                 
-                // 3. Setear las asistencias (limpiando las fechas a YYYY-MM-DD)
                 const formattedAttendances = payrollRes.data.attendances.map(a => ({
                     ...a,
                     date: typeof a.date === 'string' ? a.date.split('T')[0] : a.date
                 }));
                 setAttendances(formattedAttendances);
-
-                // Guardamos TODOS los trabajadores en un estado separado SOLO para el Modal
                 setAllWorkersForModal(allWorkersRes.data);
 
             } catch (error) {
@@ -69,7 +54,6 @@ const PayrollDetailsPage = () => {
         const record = getAttendanceRecord(workerId, date);
 
         let finalValue = value;
-        // NUEVO: Procesar numéricamente tanto amount como extra_amount
         if (field === 'amount' || field === 'extra_amount') {
             finalValue = value === "" ? 0 : parseFloat(value);
         }
@@ -85,7 +69,7 @@ const PayrollDetailsPage = () => {
             date: date,
             did_eat: record ? record.did_eat : false,
             amount: record ? record.amount : 0,
-            extra_amount: record ? record.extra_amount : 0, // NUEVO: Incluir en el payload
+            extra_amount: record ? record.extra_amount : 0, 
             is_paid: record ? record.is_paid : false,
             status: record ? record.status : 'asistio',
             [field]: finalValue 
@@ -108,23 +92,22 @@ const PayrollDetailsPage = () => {
         }
     };
 
-    const handleAddManual = async (e) => {
-        e.preventDefault();
-        
-        if (getAttendanceRecord(newWorkerId, newDate)) {
+    // Esta función ahora recibe un objeto "formData" desde el AttendanceModal
+    const handleAddManual = async (formData) => {
+        if (getAttendanceRecord(formData.person_id, formData.date)) {
             alert("Este trabajador ya tiene un registro en esta fecha.");
             return;
         }
 
         const payload = {
             payroll_id: parseInt(id),
-            person_id: parseInt(newWorkerId),
-            date: newDate,
+            person_id: parseInt(formData.person_id),
+            date: formData.date,
             did_eat: false,
-            amount: newAmount === "" ? 0 : parseFloat(newAmount),
-            extra_amount: newExtraAmount === "" ? 0 : parseFloat(newExtraAmount), // NUEVO: Enviar transporte al backend
+            amount: formData.amount,
+            extra_amount: formData.extra_amount, 
             is_paid: false,
-            status: newStatus 
+            status: formData.status 
         };
 
         try {
@@ -134,20 +117,15 @@ const PayrollDetailsPage = () => {
             setAttendances(prev => [...prev, newRecord]);
 
             setWorkers(prevWorkers => {
-                const exists = prevWorkers.some(w => w.person_id === parseInt(newWorkerId));
+                const exists = prevWorkers.some(w => w.person_id === parseInt(formData.person_id));
                 if (!exists) {
-                    const newWorkerToDisplay = allWorkersForModal.find(w => w.person_id === parseInt(newWorkerId));
+                    const newWorkerToDisplay = allWorkersForModal.find(w => w.person_id === parseInt(formData.person_id));
                     return [...prevWorkers, newWorkerToDisplay];
                 }
                 return prevWorkers;
             });
             
             setIsAddModalOpen(false);
-            setNewDate('');
-            setNewWorkerId('');
-            setNewAmount('');
-            setNewExtraAmount(''); // NUEVO: Limpiar estado
-            setNewStatus('asistio');
         } catch (err) {
             alert("Error al crear. Verifica consola.");
             console.error(err);
@@ -174,7 +152,6 @@ const PayrollDetailsPage = () => {
 
     if (loading) return <div className="text-sm text-gray-500 mt-10 text-center">Cargando datos...</div>;
 
-    // NUEVO: El total general ahora suma tanto amount como extra_amount
     const grandTotal = attendances.reduce((sum, a) => sum + parseFloat(a.amount || 0) + parseFloat(a.extra_amount || 0), 0);
 
     return (
@@ -231,7 +208,6 @@ const PayrollDetailsPage = () => {
                                         Trabajador
                                     </th>
                                     {days.map(date => (
-                                        /* NUEVO: Cambiado colSpan de 4 a 5 para hacer espacio al transporte */
                                         <th key={date} colSpan={5} className="text-center px-2 py-2 text-xs font-bold text-gray-700 uppercase border-r-2 border-b border-gray-300 bg-gray-100">
                                             {date.split('-')[2]} / {date.split('-')[1]}
                                         </th>
@@ -246,7 +222,6 @@ const PayrollDetailsPage = () => {
                                         <Fragment key={`sub-${date}`}>
                                             <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r border-b min-w-[110px] bg-white text-center">Estado</th>
                                             <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r border-b min-w-[90px] bg-white text-center">Monto</th>
-                                            {/* NUEVO: Columna de Transporte en el encabezado */}
                                             <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r border-b min-w-[80px] bg-white text-center" title="Pasajes / Transporte">Transp.</th>
                                             <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r border-b min-w-[70px] bg-white text-center">Comida</th>
                                             <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r-2 border-b border-gray-300 min-w-[70px] bg-white text-center">Pagado</th>
@@ -258,7 +233,6 @@ const PayrollDetailsPage = () => {
                             <tbody className="divide-y divide-gray-100">
                                 {workers.map(worker => {
                                     const workerAttendances = attendances.filter(a => a.person_id === worker.person_id);
-                                    // NUEVO: Total del trabajador ahora incluye extra_amount
                                     const workerTotal = workerAttendances.reduce((sum, a) => sum + parseFloat(a.amount || 0) + parseFloat(a.extra_amount || 0), 0);
 
                                     return (
@@ -296,7 +270,6 @@ const PayrollDetailsPage = () => {
                                                                     ${record?.amount > 0 ? 'text-gray-900 bg-green-50/20' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
                                                             />
                                                         </td>
-                                                        {/* NUEVO: Celda para el Monto Extra / Transporte */}
                                                         <td className="p-0 border-r border-gray-200 relative min-w-[80px]">
                                                             <input 
                                                                 type="number"
@@ -331,54 +304,14 @@ const PayrollDetailsPage = () => {
                 </div>
             </div>
 
-            {isAddModalOpen && (
-                <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
-                        <h3 className="text-lg font-bold mb-4">Añadir Asistencia / Crear Día</h3>
-                        <form onSubmit={handleAddManual} className="space-y-4">
-                            
-                            <div>
-                                <label className="block text-xs font-semibold uppercase text-gray-600 mb-1">Trabajador</label>
-                                <select required value={newWorkerId} onChange={e => setNewWorkerId(e.target.value)} className="w-full border p-2 rounded text-sm bg-white">
-                                    <option value="" disabled>Selecciona un trabajador...</option>
-                                    {workers.map(w => (
-                                        <option key={w.id} value={w.person_id}>{w.person.first_name} {w.person.last_name}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-semibold uppercase text-gray-600 mb-1">Fecha</label>
-                                <input type="date" required value={newDate} onChange={e => setNewDate(e.target.value)} className="w-full border p-2 rounded text-sm" />
-                            </div>
-
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-xs font-semibold uppercase text-gray-600 mb-1">Estado</label>
-                                    <select required value={newStatus} onChange={e => setNewStatus(e.target.value)} className="w-full border p-2 rounded text-sm bg-white">
-                                        <option value="asistio">Asistió</option>
-                                        <option value="falto">Faltó</option>
-                                    </select>
-                                </div>
-                                <div className="flex-1">
-                                    <label className="block text-xs font-semibold uppercase text-gray-600 mb-1">Monto (Bs.)</label>
-                                    <input type="number" step="0.1" required value={newAmount} onChange={e => setNewAmount(e.target.value)} placeholder="Ej: 150" className="w-full border p-2 rounded text-sm" />
-                                </div>
-                                {/* NUEVO: Input para Transporte en el Modal */}
-                                <div className="flex-1">
-                                    <label className="block text-xs font-semibold uppercase text-gray-600 mb-1">Transp. (Bs.)</label>
-                                    <input type="number" step="0.1" value={newExtraAmount} onChange={e => setNewExtraAmount(e.target.value)} placeholder="Ej: 10" className="w-full border p-2 rounded text-sm bg-orange-50/50" />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-100">
-                                <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 bg-gray-100 rounded-md text-sm text-gray-700 font-medium">Cancelar</button>
-                                <button type="submit" className="px-4 py-2 bg-blue-600 rounded-md text-sm text-white font-medium shadow-sm">Guardar Registro</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            {/* AQUÍ LLAMAMOS AL COMPONENTE EXTERNO */}
+            <AttendanceModal 
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onSave={handleAddManual}
+                workers={allWorkersForModal}
+            />
+            
         </div>
     );
 };

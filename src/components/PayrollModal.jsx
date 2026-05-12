@@ -79,19 +79,16 @@ const PayrollModal = ({ isOpen, onClose, onSave, editingPayroll }) => {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
                             <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                                Código de Planilla
+                                Código / Nombre de Planilla
                             </label>
                             <input 
                                 type="text" 
                                 value={code} 
                                 onChange={(e) => setCode(e.target.value)} 
-                                // Si estamos editando, no dejamos cambiar el código para no romper dependencias
-                                disabled={!!editingPayroll}
-                                className={`w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-semibold transition-all ${editingPayroll ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'text-gray-800 focus:border-blue-500'}`} 
+                                // ELIMINAMOS EL disabled={!!editingPayroll} para poder editarlo
+                                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold transition-all text-gray-800" 
                                 required 
                             />
-                            {/* Pequeña ayuda visual para el usuario */}
-                            {!editingPayroll && <p className="text-[10px] text-gray-400 mt-1">El sistema ajustará el código final automáticamente.</p>}
                         </div>
                         
                         <div>
