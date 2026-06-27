@@ -55,14 +55,14 @@ const SalesPage = () => {
 
     const saleName = (s) => s.prospect?.person ? `${s.prospect.person.first_name} ${s.prospect.person.last_name || ''}`.trim() : `Prospecto #${s.prospect_id}`;
 
-    if (loading) return <div className="text-sm text-gray-500 mt-10 text-center">Cargando...</div>;
+    if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando...</div>;
 
     return (
         <div className="flex flex-col gap-5">
             <div className="flex items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Ventas</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">Inscripciones registradas. Al registrar una venta el prospecto pasa a “inscrito”.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Ventas</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Inscripciones registradas. Al registrar una venta el prospecto pasa a “inscrito”.</p>
                 </div>
                 <button onClick={() => setIsOpen(true)} className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm active:scale-95 transition-all">
                     <Plus size={18} /> <span className="hidden sm:inline">Registrar venta</span>
@@ -77,29 +77,29 @@ const SalesPage = () => {
             </div>
 
             {sales.length === 0 ? (
-                <div className="bg-white border border-dashed border-gray-200 rounded-xl py-16 text-center text-gray-400 text-sm">Aún no hay ventas registradas.</div>
+                <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl py-16 text-center text-gray-400 dark:text-gray-500 text-sm">Aún no hay ventas registradas.</div>
             ) : (
                 <>
                     {/* Tabla desktop */}
-                    <div className="hidden md:block bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div className="hidden md:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
                         <table className="w-full text-left">
-                            <thead className="bg-gray-50/80 border-b border-gray-200">
+                            <thead className="bg-gray-50/80 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
                                 <tr>
                                     {['Cliente', 'Producto', 'Fecha', 'Recibo', 'Comisión', ''].map((h) => (
-                                        <th key={h} className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest">{h}</th>
+                                        <th key={h} className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 text-sm">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-sm">
                                 {sales.map((s) => (
                                     <tr key={s.id} className="hover:bg-yellow-50/30">
-                                        <td className="px-5 py-3 font-bold text-gray-900">{saleName(s)}</td>
-                                        <td className="px-5 py-3 text-gray-700">{s.product?.name} <span className="text-yellow-700 font-semibold">{s.product?.price != null ? `· ${money(s.product.price)}` : ''}</span></td>
-                                        <td className="px-5 py-3 text-gray-500">{shortDate(s.enrollment_date)}</td>
-                                        <td className="px-5 py-3 text-gray-500 font-mono text-xs">{s.receipt_number || '—'}</td>
-                                        <td className="px-5 py-3 text-gray-700">{money(s.commission)}</td>
+                                        <td className="px-5 py-3 font-bold text-gray-900 dark:text-gray-100">{saleName(s)}</td>
+                                        <td className="px-5 py-3 text-gray-700 dark:text-gray-200">{s.product?.name} <span className="text-yellow-700 dark:text-yellow-400 font-semibold">{s.product?.price != null ? `· ${money(s.product.price)}` : ''}</span></td>
+                                        <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{shortDate(s.enrollment_date)}</td>
+                                        <td className="px-5 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">{s.receipt_number || '—'}</td>
+                                        <td className="px-5 py-3 text-gray-700 dark:text-gray-200">{money(s.commission)}</td>
                                         <td className="px-5 py-3 text-right">
-                                            <button onClick={() => remove(s.id)} className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg"><Trash2 size={15} /></button>
+                                            <button onClick={() => remove(s.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/30 rounded-lg"><Trash2 size={15} /></button>
                                         </td>
                                     </tr>
                                 ))}
@@ -110,17 +110,17 @@ const SalesPage = () => {
                     {/* Cards móvil */}
                     <div className="md:hidden flex flex-col gap-3">
                         {sales.map((s) => (
-                            <div key={s.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <div key={s.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="font-bold text-gray-900 truncate">{saleName(s)}</p>
-                                        <p className="text-xs text-gray-500 mt-0.5">{s.product?.name} · {shortDate(s.enrollment_date)}</p>
+                                        <p className="font-bold text-gray-900 dark:text-gray-100 truncate">{saleName(s)}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{s.product?.name} · {shortDate(s.enrollment_date)}</p>
                                     </div>
-                                    <button onClick={() => remove(s.id)} className="p-1.5 text-red-600 bg-red-50 rounded-lg shrink-0"><Trash2 size={15} /></button>
+                                    <button onClick={() => remove(s.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 rounded-lg shrink-0"><Trash2 size={15} /></button>
                                 </div>
                                 <div className="flex justify-between mt-3 text-xs">
-                                    <span className="text-gray-500">Recibo: <b className="font-mono">{s.receipt_number || '—'}</b></span>
-                                    <span className="text-gray-500">Comisión: <b className="text-gray-700">{money(s.commission)}</b></span>
+                                    <span className="text-gray-500 dark:text-gray-400">Recibo: <b className="font-mono">{s.receipt_number || '—'}</b></span>
+                                    <span className="text-gray-500 dark:text-gray-400">Comisión: <b className="text-gray-700 dark:text-gray-200">{money(s.commission)}</b></span>
                                 </div>
                             </div>
                         ))}
@@ -151,7 +151,7 @@ const SalesPage = () => {
                     </Field>
                     {products.length === 0 && <p className="text-xs text-amber-600">Primero crea un producto en la sección Productos.</p>}
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl">Cancelar</button>
+                        <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl">Cancelar</button>
                         <button type="submit" className="px-6 py-2 text-sm bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl shadow active:scale-95 transition-all">Registrar venta</button>
                     </div>
                 </form>
@@ -160,15 +160,15 @@ const SalesPage = () => {
     );
 };
 
-const cls = 'w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20';
+const cls = 'w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20';
 const Field = ({ label, children }) => (
-    <div><label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</label>{children}</div>
+    <div><label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">{label}</label>{children}</div>
 );
 const Summary = ({ icon: Icon, label, value, accent }) => (
-    <div className={`rounded-xl border p-4 ${accent ? 'bg-green-50 border-green-100' : 'bg-white border-gray-200'} shadow-sm`}>
-        <Icon size={18} className={accent ? 'text-green-600' : 'text-gray-400'} />
-        <p className={`text-lg font-bold mt-2 ${accent ? 'text-green-700' : 'text-gray-900'}`}>{value}</p>
-        <p className="text-[11px] text-gray-400 uppercase tracking-wide">{label}</p>
+    <div className={`rounded-xl border p-4 ${accent ? 'bg-green-50 dark:bg-green-500/10 border-green-100' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'} shadow-sm`}>
+        <Icon size={18} className={accent ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'} />
+        <p className={`text-lg font-bold mt-2 ${accent ? 'text-green-700 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'}`}>{value}</p>
+        <p className="text-[11px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">{label}</p>
     </div>
 );
 

@@ -63,14 +63,14 @@ const TrialClassesPage = () => {
 
     const prospectName = (c) => c.prospect?.person ? `${c.prospect.person.first_name} ${c.prospect.person.last_name || ''}`.trim() : `Prospecto #${c.prospect_id}`;
 
-    if (loading) return <div className="text-sm text-gray-500 mt-10 text-center">Cargando...</div>;
+    if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando...</div>;
 
     return (
         <div className="flex flex-col gap-5">
             <div className="flex items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Clases de Prueba</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">Agenda y seguimiento de las clases demostrativas.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Clases de Prueba</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Agenda y seguimiento de las clases demostrativas.</p>
                 </div>
                 <button onClick={() => open()} className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm active:scale-95 transition-all">
                     <Plus size={18} /> <span className="hidden sm:inline">Agendar</span>
@@ -78,7 +78,7 @@ const TrialClassesPage = () => {
             </div>
 
             {classes.length === 0 ? (
-                <div className="bg-white border border-dashed border-gray-200 rounded-xl py-16 text-center text-gray-400 text-sm">
+                <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl py-16 text-center text-gray-400 dark:text-gray-500 text-sm">
                     <CalendarClock className="mx-auto text-gray-300 mb-2" size={32} />
                     Aún no hay clases agendadas.
                 </div>
@@ -87,21 +87,21 @@ const TrialClassesPage = () => {
                     {classes.map((c) => {
                         const meta = statusMeta(TRIAL_STATUSES, c.status);
                         return (
-                            <div key={c.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-3">
-                                <div className="p-2.5 bg-yellow-50 text-yellow-600 rounded-lg shrink-0 hidden sm:block"><CalendarClock size={20} /></div>
+                            <div key={c.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-3">
+                                <div className="p-2.5 bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-lg shrink-0 hidden sm:block"><CalendarClock size={20} /></div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-gray-900">{prospectName(c)}</p>
-                                    <p className="text-xs text-gray-500 mt-0.5">
+                                    <p className="font-bold text-gray-900 dark:text-gray-100">{prospectName(c)}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                         {shortDateTime(c.schedule)} · Prof: {c.teacher?.name || '—'}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0">
                                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border ${meta.color}`}>{meta.label}</span>
-                                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold ${c.attendance_bool ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold ${c.attendance_bool ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
                                         {c.attendance_bool ? <Check size={12} /> : <X size={12} />} Asistió
                                     </span>
-                                    <button onClick={() => open(c)} className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg"><Edit2 size={15} /></button>
-                                    <button onClick={() => remove(c.id)} className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg"><Trash2 size={15} /></button>
+                                    <button onClick={() => open(c)} className="p-1.5 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/30 rounded-lg"><Edit2 size={15} /></button>
+                                    <button onClick={() => remove(c.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/30 rounded-lg"><Trash2 size={15} /></button>
                                 </div>
                             </div>
                         );
@@ -133,12 +133,12 @@ const TrialClassesPage = () => {
                     <Field label="Fecha y hora *">
                         <input required type="datetime-local" value={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.value })} className={cls} />
                     </Field>
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                         <input type="checkbox" checked={form.attendance_bool} onChange={(e) => setForm({ ...form, attendance_bool: e.target.checked })} className="w-4 h-4 accent-yellow-500" />
                         El prospecto asistió
                     </label>
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl">Cancelar</button>
+                        <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl">Cancelar</button>
                         <button type="submit" className="px-6 py-2 text-sm bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl shadow active:scale-95 transition-all">{editing ? 'Actualizar' : 'Agendar'}</button>
                     </div>
                 </form>
@@ -147,9 +147,9 @@ const TrialClassesPage = () => {
     );
 };
 
-const cls = 'w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20';
+const cls = 'w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20';
 const Field = ({ label, children }) => (
-    <div><label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</label>{children}</div>
+    <div><label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">{label}</label>{children}</div>
 );
 
 export default TrialClassesPage;

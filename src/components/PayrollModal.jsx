@@ -57,20 +57,20 @@ const PayrollModal = ({ isOpen, onClose, onSave, editingPayroll }) => {
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 transition-all">
-            <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100 animate-in fade-in zoom-in duration-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 tracking-tight">
+            <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-200">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 tracking-tight">
                     {editingPayroll ? 'Editar Periodo de Planilla' : 'Crear Periodo de Planilla'}
                 </h3>
                 
                 {loadingData ? (
-                    <div className="py-8 text-center text-sm text-gray-500 font-medium">Cargando datos...</div>
+                    <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400 font-medium">Cargando datos...</div>
                 ) : fetchError ? (
                     <div className="py-8 flex flex-col items-center">
                         <p className="text-sm text-red-500 font-medium mb-6 text-center">{fetchError}</p>
                         <button 
                             type="button" 
                             onClick={onClose} 
-                            className="px-6 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-xl transition-all"
+                            className="px-6 py-2 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 font-bold rounded-xl transition-all"
                         >
                             Cerrar ventana
                         </button>
@@ -78,7 +78,7 @@ const PayrollModal = ({ isOpen, onClose, onSave, editingPayroll }) => {
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                            <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
                                 Código / Nombre de Planilla
                             </label>
                             <input 
@@ -86,19 +86,19 @@ const PayrollModal = ({ isOpen, onClose, onSave, editingPayroll }) => {
                                 value={code} 
                                 onChange={(e) => setCode(e.target.value)} 
                                 // ELIMINAMOS EL disabled={!!editingPayroll} para poder editarlo
-                                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold transition-all text-gray-800" 
+                                className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold transition-all text-gray-800 dark:text-gray-100" 
                                 required 
                             />
                         </div>
                         
                         <div>
-                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                            <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
                                 Área de Trabajo Principal
                             </label>
                             <select 
                                 value={workAreaId} 
                                 onChange={(e) => setWorkAreaId(e.target.value)} 
-                                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
+                                className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                                 required
                             >
                                 <option value="" disabled>Seleccione un área...</option>
@@ -109,32 +109,32 @@ const PayrollModal = ({ isOpen, onClose, onSave, editingPayroll }) => {
 
                         <div className="flex gap-4">
                             <div className="flex-1">
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fecha de Inicio</label>
+                                <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Fecha de Inicio</label>
                                 <input 
                                     type="date" 
                                     value={startDate} 
                                     onChange={(e) => setStartDate(e.target.value)} 
-                                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
+                                    className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                                     required 
                                 />
                             </div>
                             <div className="flex-1">
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fecha de Fin</label>
+                                <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Fecha de Fin</label>
                                 <input 
                                     type="date" 
                                     value={endDate} 
                                     onChange={(e) => setEndDate(e.target.value)} 
-                                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
+                                    className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                                     required 
                                 />
                             </div>
                         </div>
                         
-                        <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
+                        <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100 dark:border-gray-700">
                             <button 
                                 type="button" 
                                 onClick={onClose} 
-                                className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-xl transition-all"
+                                className="px-4 py-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-all"
                             >
                                 Cancelar
                             </button>

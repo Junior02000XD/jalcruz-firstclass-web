@@ -171,21 +171,21 @@ const PayrollDetailsPage = () => {
         }
     };
 
-    if (loading) return <div className="text-sm text-gray-500 mt-10 text-center">Cargando datos...</div>;
+    if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando datos...</div>;
 
     const grandTotal = attendances.reduce((sum, a) => sum + parseFloat(a.amount || 0) + parseFloat(a.extra_amount || 0), 0);
 
     return (
         <div className="flex flex-col h-[calc(100vh-80px)]">
             <div className="mb-4 flex-none">
-                <Link to="/jalcruz/planillas" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 mb-2">
+                <Link to="/jalcruz/planillas" className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 mb-2">
                     <ArrowLeft size={16} /> Volver
                 </Link>
                 
                 <div className="flex justify-between items-end">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Registro General: {payroll?.code}</h1>
-                        <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Registro General: {payroll?.code}</h1>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
                             <Calendar size={14} /> {payroll?.start_date?.split('T')[0]} al {payroll?.end_date?.split('T')[0]}
                         </p>
                     </div>
@@ -202,38 +202,38 @@ const PayrollDetailsPage = () => {
                         >
                             <Plus size={16} /> Añadir Día / Asistencia
                         </button>
-                        <div className="bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
-                            <span className="text-sm font-semibold text-green-700 mr-2">Total Planilla:</span>
+                        <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 px-4 py-2 rounded-lg">
+                            <span className="text-sm font-semibold text-green-700 dark:text-green-400 mr-2">Total Planilla:</span>
                             <span className="text-xl font-bold text-green-900">Bs. {grandTotal.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm flex-1 overflow-hidden flex flex-col relative">
-                <div className="bg-blue-50/50 border-b border-gray-200 px-4 py-2 flex items-center gap-2 text-xs text-blue-700 flex-none">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm flex-1 overflow-hidden flex flex-col relative">
+                <div className="bg-blue-50/50 border-b border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300 flex-none">
                     <CheckCircle2 size={14} className="text-blue-500" />
                     Las celdas se guardan automáticamente. Si una columna de fecha no existe, usa el botón "Añadir Día".
                 </div>
 
                 <div className="overflow-auto flex-1 excel-scrollbar">
                     {days.length === 0 ? (
-                        <div className="flex items-center justify-center h-full text-gray-400 p-10">
+                        <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 p-10">
                             Aún no hay asistencias en esta planilla. Añade una para generar las columnas.
                         </div>
                     ) : (
                         <table className="w-max text-left border-collapse whitespace-nowrap">
-                            <thead className="sticky top-0 z-20 bg-gray-50 shadow-sm">
+                            <thead className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-700/50 shadow-sm">
                                 <tr>
-                                    <th rowSpan={2} className="sticky left-0 z-30 bg-gray-100 px-4 py-3 text-xs font-semibold text-gray-700 uppercase border-r-2 border-b border-gray-300 min-w-[200px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                                    <th rowSpan={2} className="sticky left-0 z-30 bg-gray-100 dark:bg-gray-700 px-4 py-3 text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase border-r-2 border-b border-gray-300 dark:border-gray-600 min-w-[200px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                                         Trabajador
                                     </th>
                                     {days.map(date => (
-                                        <th key={date} colSpan={5} className="text-center px-2 py-2 text-xs font-bold text-gray-700 uppercase border-r-2 border-b border-gray-300 bg-gray-100">
+                                        <th key={date} colSpan={5} className="text-center px-2 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase border-r-2 border-b border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700">
                                             {date.split('-')[2]} / {date.split('-')[1]}
                                         </th>
                                     ))}
-                                    <th rowSpan={2} className="sticky right-0 z-30 bg-gray-100 px-4 py-3 text-xs font-bold text-gray-800 uppercase border-l-2 border-b border-gray-300 min-w-[120px] shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] text-right">
+                                    <th rowSpan={2} className="sticky right-0 z-30 bg-gray-100 dark:bg-gray-700 px-4 py-3 text-xs font-bold text-gray-800 dark:text-gray-100 uppercase border-l-2 border-b border-gray-300 dark:border-gray-600 min-w-[120px] shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] text-right">
                                         Total (Bs)
                                     </th>
                                 </tr>
@@ -241,24 +241,24 @@ const PayrollDetailsPage = () => {
                                 <tr>
                                     {days.map(date => (
                                         <Fragment key={`sub-${date}`}>
-                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r border-b min-w-[110px] bg-white text-center">Estado</th>
-                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r border-b min-w-[90px] bg-white text-center">Monto</th>
-                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r border-b min-w-[80px] bg-white text-center" title="Pasajes / Transporte">Transp.</th>
-                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r border-b min-w-[70px] bg-white text-center">Comida</th>
-                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 uppercase border-r-2 border-b border-gray-300 min-w-[70px] bg-white text-center">Pagado</th>
+                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase border-r border-b min-w-[110px] bg-white dark:bg-gray-800 text-center">Estado</th>
+                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase border-r border-b min-w-[90px] bg-white dark:bg-gray-800 text-center">Monto</th>
+                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase border-r border-b min-w-[80px] bg-white dark:bg-gray-800 text-center" title="Pasajes / Transporte">Transp.</th>
+                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase border-r border-b min-w-[70px] bg-white dark:bg-gray-800 text-center">Comida</th>
+                                            <th className="px-2 py-2 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase border-r-2 border-b border-gray-300 dark:border-gray-600 min-w-[70px] bg-white dark:bg-gray-800 text-center">Pagado</th>
                                         </Fragment>
                                     ))}
                                 </tr>
                             </thead>
                             
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                                 {workers.map(worker => {
                                     const workerAttendances = attendances.filter(a => a.person_id === worker.person_id);
                                     const workerTotal = workerAttendances.reduce((sum, a) => sum + parseFloat(a.amount || 0) + parseFloat(a.extra_amount || 0), 0);
 
                                     return (
                                         <tr key={worker.id} className="hover:bg-blue-50/10 group">
-                                            <td className="sticky left-0 z-10 bg-white group-hover:bg-gray-50 px-4 py-2 border-r-2 border-gray-300 font-medium text-sm text-gray-800 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[200px]">
+                                            <td className="sticky left-0 z-10 bg-white dark:bg-gray-800 group-hover:bg-gray-50 px-4 py-2 border-r-2 border-gray-300 dark:border-gray-600 font-medium text-sm text-gray-800 dark:text-gray-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[200px]">
                                                 {worker.person.first_name} {worker.person.last_name}
                                             </td>
                                             
@@ -269,7 +269,7 @@ const PayrollDetailsPage = () => {
 
                                                 return (
                                                     <Fragment key={`${worker.id}-${date}`}>
-                                                        <td className="p-0 border-r border-gray-200 relative min-w-[110px]">
+                                                        <td className="p-0 border-r border-gray-200 dark:border-gray-700 relative min-w-[110px]">
                                                             <select 
                                                                 // CAMBIO IMPORTANTE: Usar 'value' en lugar de 'defaultValue' para poder controlarlo
                                                                 value={record?.status || ""}
@@ -281,7 +281,7 @@ const PayrollDetailsPage = () => {
                                                                     }
                                                                 }}
                                                                 className={`w-full h-full min-h-[2.5rem] px-1 text-xs outline-none text-center appearance-none cursor-pointer
-                                                                    ${record ? 'bg-green-50/20 text-gray-800 font-medium' : 'bg-transparent text-gray-400 hover:bg-gray-50'}`}
+                                                                    ${record ? 'bg-green-50/20 text-gray-800 dark:text-gray-100 font-medium' : 'bg-transparent text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
                                                             >
                                                                 {/* Si no hay registro, mostramos el guion por defecto */}
                                                                 {!record && <option value="" disabled>-</option>}
@@ -291,23 +291,23 @@ const PayrollDetailsPage = () => {
                                                                 
                                                                 {/* NUEVO: Si el registro existe, damos la opción de eliminarlo */}
                                                                 {record && (
-                                                                    <option value="delete" className="text-red-600 font-bold">
+                                                                    <option value="delete" className="text-red-600 dark:text-red-400 font-bold">
                                                                         ❌ Eliminar
                                                                     </option>
                                                                 )}
                                                             </select>
                                                         </td>
-                                                        <td className="p-0 border-r border-gray-200 relative min-w-[90px]">
+                                                        <td className="p-0 border-r border-gray-200 dark:border-gray-700 relative min-w-[90px]">
                                                             <input 
                                                                 type="number"
                                                                 step="0.1"
                                                                 defaultValue={record?.amount ?? ''}
                                                                 onBlur={(e) => handleFieldChange(worker.person_id, date, 'amount', e.target.value)}
                                                                 className={`w-full h-full min-h-[2.5rem] px-2 text-center text-sm outline-none font-medium
-                                                                    ${record?.amount > 0 ? 'text-gray-900 bg-green-50/20' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
+                                                                    ${record?.amount > 0 ? 'text-gray-900 dark:text-gray-100 bg-green-50/20' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
                                                             />
                                                         </td>
-                                                        <td className="p-0 border-r border-gray-200 relative min-w-[80px]">
+                                                        <td className="p-0 border-r border-gray-200 dark:border-gray-700 relative min-w-[80px]">
                                                             <input 
                                                                 type="number"
                                                                 step="0.1"
@@ -318,10 +318,10 @@ const PayrollDetailsPage = () => {
                                                                 title="Transporte / Gastos Extra"
                                                             />
                                                         </td>
-                                                        <td className="p-0 border-r border-gray-200 text-center bg-gray-50/30 min-w-[70px]">
+                                                        <td className="p-0 border-r border-gray-200 dark:border-gray-700 text-center bg-gray-50/30 min-w-[70px]">
                                                             <input type="checkbox" defaultChecked={record?.did_eat || false} onChange={(e) => handleFieldChange(worker.person_id, date, 'did_eat', e.target.checked)} className="w-4 h-4 cursor-pointer mt-1" />
                                                         </td>
-                                                        <td className="p-0 border-r-2 border-gray-300 text-center relative bg-gray-50/30 min-w-[70px]">
+                                                        <td className="p-0 border-r-2 border-gray-300 dark:border-gray-600 text-center relative bg-gray-50/30 min-w-[70px]">
                                                             {isSaving && <Loader2 size={12} className="absolute top-1 right-1 animate-spin text-blue-500" />}
                                                             <input type="checkbox" defaultChecked={record?.is_paid || false} onChange={(e) => handleFieldChange(worker.person_id, date, 'is_paid', e.target.checked)} className="w-4 h-4 cursor-pointer mt-1" />
                                                         </td>
@@ -329,7 +329,7 @@ const PayrollDetailsPage = () => {
                                                 );
                                             })}
                                             
-                                            <td className="sticky right-0 z-10 bg-gray-50 px-4 py-2 border-l-2 border-gray-300 text-right font-bold text-sm text-green-700 min-w-[120px]">
+                                            <td className="sticky right-0 z-10 bg-gray-50 dark:bg-gray-700/50 px-4 py-2 border-l-2 border-gray-300 dark:border-gray-600 text-right font-bold text-sm text-green-700 dark:text-green-400 min-w-[120px]">
                                                 {workerTotal.toFixed(2)}
                                             </td>
                                         </tr>

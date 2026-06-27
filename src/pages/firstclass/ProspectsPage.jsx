@@ -117,9 +117,9 @@ const ProspectsPage = () => {
         const wa = whatsappLink(number);
         return (
             <div className="flex items-center gap-2">
-                <span className="font-mono text-sm text-gray-700">{number}</span>
+                <span className="font-mono text-sm text-gray-700 dark:text-gray-200">{number}</span>
                 {wa && (
-                    <a href={wa} target="_blank" rel="noreferrer" className="p-1.5 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg" title="WhatsApp">
+                    <a href={wa} target="_blank" rel="noreferrer" className="p-1.5 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-500/10 hover:bg-green-100 rounded-lg" title="WhatsApp">
                         <MessageCircle size={15} />
                     </a>
                 )}
@@ -127,15 +127,15 @@ const ProspectsPage = () => {
         );
     };
 
-    if (loading) return <div className="text-sm text-gray-500 mt-10 text-center">Cargando prospectos...</div>;
+    if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando prospectos...</div>;
 
     return (
         <div className="flex flex-col gap-5">
             {/* Encabezado */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Prospectos</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">Captura y da seguimiento a tus clientes potenciales.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Prospectos</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Captura y da seguimiento a tus clientes potenciales.</p>
                 </div>
                 <button
                     onClick={() => setIsOpen(true)}
@@ -149,7 +149,7 @@ const ProspectsPage = () => {
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                 <button
                     onClick={() => setFilter('todos')}
-                    className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${filter === 'todos' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200'}`}
+                    className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${filter === 'todos' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'}`}
                 >
                     Todos ({prospects.length})
                 </button>
@@ -157,7 +157,7 @@ const ProspectsPage = () => {
                     <button
                         key={s.value}
                         onClick={() => setFilter(s.value)}
-                        className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${filter === s.value ? 'bg-gray-900 text-white border-gray-900' : `bg-white border-gray-200 text-gray-600`}`}
+                        className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${filter === s.value ? 'bg-gray-900 text-white border-gray-900' : `bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300`}`}
                     >
                         {s.label} ({counts[s.value] || 0})
                     </button>
@@ -166,53 +166,53 @@ const ProspectsPage = () => {
 
             {/* Búsqueda */}
             <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
                 <input
                     type="text"
                     placeholder="Buscar nombre, teléfono u origen..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 shadow-sm"
+                    className="pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 shadow-sm"
                 />
             </div>
 
             {visible.length === 0 ? (
-                <div className="bg-white border border-dashed border-gray-200 rounded-xl py-16 text-center">
+                <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl py-16 text-center">
                     <UserPlus className="mx-auto text-gray-300" size={32} />
-                    <p className="text-gray-400 text-sm mt-2">No hay prospectos en esta vista.</p>
+                    <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">No hay prospectos en esta vista.</p>
                 </div>
             ) : (
                 <>
                     {/* TABLA (desktop) */}
-                    <div className="hidden md:block bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div className="hidden md:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
                         <table className="w-full text-left">
-                            <thead className="bg-gray-50/80 border-b border-gray-200">
+                            <thead className="bg-gray-50/80 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
                                 <tr>
-                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Prospecto</th>
-                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Contacto</th>
-                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Origen / Zona</th>
-                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Estado</th>
-                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest text-center">Acciones</th>
+                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Prospecto</th>
+                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Contacto</th>
+                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Origen / Zona</th>
+                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Estado</th>
+                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-center">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 text-sm">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-sm">
                                 {visible.map((p) => (
                                     <tr key={p.id} className="hover:bg-yellow-50/30 transition-colors">
-                                        <td className="px-5 py-3 font-bold text-gray-900">
+                                        <td className="px-5 py-3 font-bold text-gray-900 dark:text-gray-100">
                                             {p.person?.first_name} {p.person?.last_name}
                                         </td>
                                         <td className="px-5 py-3"><PhoneActions person={p.person} /></td>
-                                        <td className="px-5 py-3 text-gray-600">
+                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                                             <div className="flex flex-col gap-0.5 text-xs">
-                                                {p.origin && <span className="flex items-center gap-1"><Megaphone size={11} className="text-gray-400" /> {p.origin}</span>}
-                                                {p.zone?.name && <span className="flex items-center gap-1"><MapPin size={11} className="text-gray-400" /> {p.zone.name}</span>}
+                                                {p.origin && <span className="flex items-center gap-1"><Megaphone size={11} className="text-gray-400 dark:text-gray-500" /> {p.origin}</span>}
+                                                {p.zone?.name && <span className="flex items-center gap-1"><MapPin size={11} className="text-gray-400 dark:text-gray-500" /> {p.zone.name}</span>}
                                                 {!p.origin && !p.zone?.name && <span className="text-gray-300">—</span>}
                                             </div>
                                         </td>
                                         <td className="px-5 py-3"><StatusSelect prospect={p} /></td>
                                         <td className="px-5 py-3">
                                             <div className="flex justify-center">
-                                                <button onClick={() => handleDelete(p.id)} className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg" title="Eliminar">
+                                                <button onClick={() => handleDelete(p.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/30 rounded-lg" title="Eliminar">
                                                     <Trash2 size={15} />
                                                 </button>
                                             </div>
@@ -226,17 +226,17 @@ const ProspectsPage = () => {
                     {/* TARJETAS (móvil) */}
                     <div className="md:hidden flex flex-col gap-3">
                         {visible.map((p) => (
-                            <div key={p.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <div key={p.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="font-bold text-gray-900 truncate">{p.person?.first_name} {p.person?.last_name}</p>
+                                        <p className="font-bold text-gray-900 dark:text-gray-100 truncate">{p.person?.first_name} {p.person?.last_name}</p>
                                         <div className="mt-1"><PhoneActions person={p.person} /></div>
                                     </div>
-                                    <button onClick={() => handleDelete(p.id)} className="p-1.5 text-red-600 bg-red-50 rounded-lg shrink-0">
+                                    <button onClick={() => handleDelete(p.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 rounded-lg shrink-0">
                                         <Trash2 size={15} />
                                     </button>
                                 </div>
-                                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-500">
+                                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
                                     {p.origin && <span className="flex items-center gap-1"><Megaphone size={11} /> {p.origin}</span>}
                                     {p.zone?.name && <span className="flex items-center gap-1"><MapPin size={11} /> {p.zone.name}</span>}
                                 </div>
@@ -260,7 +260,7 @@ const ProspectsPage = () => {
                     </div>
                     <Field label="Teléfono / WhatsApp">
                         <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={15} />
                             <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={`${inputCls} pl-9`} placeholder="Ej: 77712345" inputMode="tel" />
                         </div>
                     </Field>
@@ -289,7 +289,7 @@ const ProspectsPage = () => {
                         </Field>
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl">Cancelar</button>
+                        <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl">Cancelar</button>
                         <button type="submit" disabled={saving} className="px-6 py-2 text-sm bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl shadow active:scale-95 transition-all disabled:opacity-60">
                             {saving ? 'Guardando...' : 'Registrar'}
                         </button>
@@ -300,10 +300,10 @@ const ProspectsPage = () => {
     );
 };
 
-const inputCls = 'w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500';
+const inputCls = 'w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500';
 const Field = ({ label, children }) => (
     <div>
-        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</label>
+        <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">{label}</label>
         {children}
     </div>
 );

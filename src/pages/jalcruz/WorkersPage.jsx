@@ -128,25 +128,25 @@ const WorkersPage = () => {
                ci.includes(term);
     });
 
-    if (loading) return <div className="text-sm text-gray-500 mt-10 text-center">Cargando base de datos...</div>;
+    if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando base de datos...</div>;
 
     return (
         <div className="flex flex-col h-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Trabajadores</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">Gestión de personal activo en Jalcruz.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Trabajadores</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Gestión de personal activo en Jalcruz.</p>
                 </div>
                 
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
                         <input 
                             type="text" 
                             placeholder="Buscar nombre o CI..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all w-full sm:w-64 shadow-sm"
+                            className="pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all w-full sm:w-64 shadow-sm"
                         />
                     </div>
                     <button 
@@ -158,22 +158,22 @@ const WorkersPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
                 <div className="overflow-x-auto flex-1">
                     <table className="w-full text-left border-collapse whitespace-nowrap">
-                        <thead className="bg-gray-50/80 border-b border-gray-200">
+                        <thead className="bg-gray-50/80 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
                             <tr>
-                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Información Personal</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Documento (C.I.)</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Confiabilidad</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Información Personal</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Documento (C.I.)</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Confiabilidad</th>
                                 {/* Centramos el encabezado de acciones */}
-                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest text-center">Acciones</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 text-sm">
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-sm">
                             {filteredWorkers.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="px-6 py-12 text-center text-gray-400">
+                                    <td colSpan="4" className="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
                                         No se encontraron registros.
                                     </td>
                                 </tr>
@@ -182,15 +182,15 @@ const WorkersPage = () => {
                                     <tr key={worker.id} className="hover:bg-blue-50/30 transition-colors group">
                                         <td className="px-6 py-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                                <div className="p-2 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg">
                                                     <User size={18} />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold text-gray-900">
+                                                    <span className="font-bold text-gray-900 dark:text-gray-100">
                                                         {worker.person.first_name} {worker.person.last_name}
                                                     </span>
                                                     {worker.person.email && (
-                                                        <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
                                                             <Mail size={10} /> {worker.person.email}
                                                         </span>
                                                     )}
@@ -199,17 +199,17 @@ const WorkersPage = () => {
                                         </td>
                                         <td className="px-6 py-3">
                                             <div className="flex flex-col">
-                                                <span className="text-gray-900 font-mono text-sm">{worker.person.ci || <span className="text-gray-400 italic">No registrado</span>}</span>
+                                                <span className="text-gray-900 dark:text-gray-100 font-mono text-sm">{worker.person.ci || <span className="text-gray-400 dark:text-gray-500 italic">No registrado</span>}</span>
                                                 {worker.person.birth_date && (
-                                                    <span className="text-xs text-gray-400 mt-0.5">Nac: {worker.person.birth_date.split('T')[0]}</span>
+                                                    <span className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Nac: {worker.person.birth_date.split('T')[0]}</span>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-3">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border
-                                                ${worker.reliability === 'Alta' || worker.reliability === 'Excelente' ? 'bg-green-50 text-green-700 border-green-200' : 
-                                                  worker.reliability === 'Media' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 
-                                                  'bg-red-50 text-red-700 border-red-200'}`}>
+                                                ${worker.reliability === 'Alta' || worker.reliability === 'Excelente' ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200' : 
+                                                  worker.reliability === 'Media' ? 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-200' : 
+                                                  'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200'}`}>
                                                 {worker.reliability}
                                             </span>
                                         </td>
@@ -219,14 +219,14 @@ const WorkersPage = () => {
                                             <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                                 <button 
                                                     onClick={() => handleOpenEdit(worker)}
-                                                    className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors tooltip-trigger"
+                                                    className="p-1.5 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/30 rounded-lg transition-colors tooltip-trigger"
                                                     title="Editar"
                                                 >
                                                     <Edit2 size={16} />
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(worker.id)}
-                                                    className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors tooltip-trigger"
+                                                    className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/30 rounded-lg transition-colors tooltip-trigger"
                                                     title="Eliminar"
                                                 >
                                                     <Trash2 size={16} />

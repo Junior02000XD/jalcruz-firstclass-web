@@ -53,13 +53,13 @@ const AttendanceModal = ({ isOpen, onClose, onSave, workers, defaultDate }) => {
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md border border-gray-100 animate-in fade-in zoom-in duration-200">
-                <h3 className="text-lg font-bold text-gray-900 mb-5 tracking-tight">Añadir Asistencia / Crear Día</h3>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl w-full max-w-md border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-200">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-5 tracking-tight">Añadir Asistencia / Crear Día</h3>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* El z-50 relativo aquí evita que el dropdown del select se esconda detrás de otros divs */}
                     <div className="relative z-50">
-                        <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Trabajador</label>
+                        <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1">Trabajador</label>
                         <Select
                             options={workerOptions}
                             value={selectedWorker}
@@ -80,23 +80,23 @@ const AttendanceModal = ({ isOpen, onClose, onSave, workers, defaultDate }) => {
                     </div>
 
                     <div className="relative z-0">
-                        <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Fecha</label>
+                        <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1">Fecha</label>
                         <input 
                             type="date" 
                             value={date} 
                             onChange={(e) => setDate(e.target.value)} 
-                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             required
                         />
                     </div>
                     
                     <div className="flex gap-4 relative z-0">
                         <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Estado</label>
+                            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1">Estado</label>
                             <select 
                                 value={status} 
                                 onChange={(e) => setStatus(e.target.value)} 
-                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:border-blue-500"
+                                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 focus:outline-none focus:border-blue-500"
                                 required
                             >
                                 <option value="asistio">Asistió</option>
@@ -104,32 +104,32 @@ const AttendanceModal = ({ isOpen, onClose, onSave, workers, defaultDate }) => {
                             </select>
                         </div>
                         <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Monto (Bs.)</label>
+                            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1">Monto (Bs.)</label>
                             <input 
                                 type="number" 
                                 step="0.1"
                                 value={amount} 
                                 onChange={(e) => setAmount(e.target.value)} 
-                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                                 placeholder="Ej: 150"
                                 required
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Transp. (Bs.)</label>
+                            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1">Transp. (Bs.)</label>
                             <input 
                                 type="number" 
                                 step="0.1"
                                 value={extraAmount} 
                                 onChange={(e) => setExtraAmount(e.target.value)} 
-                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md bg-orange-50/50 focus:outline-none focus:border-orange-500"
+                                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-orange-50/50 focus:outline-none focus:border-orange-500"
                                 placeholder="Ej: 10"
                             />
                         </div>
                     </div>
                     
-                    <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
-                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-md hover:bg-gray-100 border border-gray-200">
+                    <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700">
                             Cancelar
                         </button>
                         <button type="submit" className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 shadow-sm">
