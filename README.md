@@ -1,16 +1,33 @@
-# React + Vite
+# Jalcruz / First Class — Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SPA en React + Vite que sirve de interfaz al CRM de las empresas de la familia Cruz,
+consumiendo la [jalcruz-firstclass-api](https://github.com/Junior02000XD/jalcruz-firstclass-api).
 
-Currently, two official plugins are available:
+**Dos módulos sobre la misma app:**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Jalcruz (RRHH):** empresas, áreas de trabajo, trabajadores, planillas y asistencia.
+- **First Class (CRM):** campañas, prospectos, clases de prueba, profesores, seguimiento
+  de ventas y embudo de conversión.
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + Vite (JSX)
+- React Router — navegación SPA
+- Tailwind CSS — estilos
+- Axios — cliente HTTP
+- Lucide React — iconografía
 
-## Expanding the ESLint configuration
+## Cómo correr
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Requiere Node.js 20+ y la
+[jalcruz-firstclass-api](https://github.com/Junior02000XD/jalcruz-firstclass-api)
+corriendo localmente.
+
+```bash
+git clone https://github.com/Junior02000XD/jalcruz-firstclass-web
+cd jalcruz-firstclass-web
+npm install
+npm run dev
+```
+
+Configurar la URL base de la API en `src/api/axios.js`.
