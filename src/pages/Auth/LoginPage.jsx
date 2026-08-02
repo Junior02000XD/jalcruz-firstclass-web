@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext'; // Importamos el Hook
 import { useTheme } from '../../context/ThemeContext';
-import { Link } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 
 const ThemeToggleFloating = () => {
@@ -93,15 +92,6 @@ const LoginPage = () => {
                         Ingresar al Sistema
                     </button>
                 </form>
-
-                <div className="mt-6 text-center">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                        ¿No tienes una cuenta?{' '}
-                        <Link to="/register" className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 transition-colors">
-                            Solicitar acceso
-                        </Link>
-                    </p>
-                </div>
             </div>
         </div>
     );

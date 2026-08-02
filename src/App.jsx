@@ -24,7 +24,9 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/register" element={
+          <ProtectedRoute requiredRole="Super Admin"><RegisterPage /></ProtectedRoute>
+        } />
 
         {/* Rutas con el diseño del Panel (Sidebar + Topbar) */}
         <Route element={<AppLayout />}>
