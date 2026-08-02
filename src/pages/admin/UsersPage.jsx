@@ -2,43 +2,39 @@ import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import { Search, Shield, Trash2, UserCog } from 'lucide-react';
 
+// GET /api/users devuelve los roles como un arreglo de STRINGS
+// (`"roles": ["Super Admin"]`, ver UserDto en la API .NET), no como los objetos
+// {id, name} que armaba Spatie en el Laravel viejo. Esta pantalla era el último
+// resto de ese formato: leía `role.name` sobre un string, así que los chips
+// salían vacíos y el modal mandaba `[null]` al guardar —de ahí el 400
+// "Roles desconocidos:" en cada intento—. Tratar `roles` como strings sueltos.
 const UsersPage = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-    
+
     // Roles disponibles en el sistema
     const availableRoles = ['Super Admin', 'HR Admin', 'CRM Admin'];
     const [selectedRoles, setSelectedRoles] = useState([]);
 
-    const fetchUsers = async () => {
-        try {
-            const response = await api.get('/users');
-            setUsers(response.data);
-        } catch (error) {
-            console.error("Error al cargar usuarios:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Encadenada con promesas y no `async/await` a propósito: así los setState
+    // quedan dentro de callbacks y el effect puede llamarla sin disparar
+    // react-hooks/set-state-in-effect.
+    const fetchUsers = () =>
+        api.get('/users')
+            .then(response => setUsers(response.data))
+            .catch(error => console.error("Error al cargar usuarios:", error))
+            .finally(() => setLoading(false));
 
     useEffect(() => {
-        const fetchUsers = () => {
-            api.get('/users')
-                .then(response => setUsers(response.data))
-                .catch(error => console.error("Error al cargar usuarios:", error))
-                .finally(() => setLoading(false));
-        };
         fetchUsers();
     }, []);
 
     const handleOpenRoleModal = (user) => {
         setSelectedUser(user);
-        // Extraer los nombres de los roles que ya tiene el usuario
-        const userRoleNames = user.roles.map(r => r.name);
-        setSelectedRoles(userRoleNames);
+        setSelectedRoles([...user.roles]);
         setIsRoleModalOpen(true);
     };
 
@@ -58,7 +54,8 @@ const UsersPage = () => {
             setIsRoleModalOpen(false);
             setSelectedUser(null);
         } catch (error) {
-            alert("Error al actualizar roles.");
+            // La API manda el motivo en {message} (mismo criterio que RegisterPage).
+            alert(error.response?.data?.message || "Error al actualizar roles.");
             console.error(error);
         }
     };
@@ -68,8 +65,8 @@ const UsersPage = () => {
             try {
                 await api.delete(`/users/${id}`);
                 fetchUsers();
-            } catch {
-                alert("Error al eliminar usuario.");
+            } catch (error) {
+                alert(error.response?.data?.message || "Error al eliminar usuario.");
             }
         }
     };
@@ -121,11 +118,11 @@ const UsersPage = () => {
                                     <div className="flex gap-2">
                                         {user.roles.length === 0 && <span className="text-xs text-gray-400 dark:text-gray-500 italic">Sin acceso</span>}
                                         {user.roles.map(role => (
-                                            <span key={role.id} className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase
-                                                ${role.name === 'Super Admin' ? 'bg-purple-100 text-purple-700' : 
-                                                  role.name === 'HR Admin' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300' : 
+                                            <span key={role} className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase
+                                                ${role === 'Super Admin' ? 'bg-purple-100 text-purple-700' :
+                                                  role === 'HR Admin' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300' :
                                                   'bg-orange-100 text-orange-700'}`}>
-                                                {role.name}
+                                                {role}
                                             </span>
                                         ))}
                                     </div>
