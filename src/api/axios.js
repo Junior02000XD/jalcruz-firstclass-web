@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-    // Usa la variable de entorno, y si no existe (por si acaso), usa localhost
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost/api',
+    // Sin fallback a propósito: si falta VITE_API_URL el build ya falló
+    // (ver vite.config.js), así que acá siempre llega definida. En desarrollo
+    // la trae .env.development.
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
