@@ -20,9 +20,9 @@ const RegisterPage = () => {
         }
 
         try {
-            // Petición inicial para CSRF
-            await api.get('/sanctum/csrf-cookie');
-            
+            // Sin llamada previa de CSRF: la API .NET es stateless y autentica con
+            // Bearer JWT, no con la cookie de sesión de Sanctum. Pedir
+            // /sanctum/csrf-cookie daba 404 y abortaba el alta antes de intentarla.
             await api.post('/register', {
                 name,
                 email,
