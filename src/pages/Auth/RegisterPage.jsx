@@ -38,9 +38,12 @@ const RegisterPage = () => {
             setTimeout(() => navigate('/login'), 2500);
 
         } catch (err) {
-            const errorMsg = err.response?.data?.email 
-                ? 'El correo ya está registrado.' 
-                : 'Error al registrar la cuenta. Verifica los datos.';
+            // La API .NET manda el motivo en {message} —"El correo ya está
+            // registrado."—. Antes se leía err.response.data.email, que era la
+            // forma de validación de Laravel: no existe más, así que cualquier
+            // fallo caía en el mensaje genérico.
+            const errorMsg = err.response?.data?.message
+                || 'Error al registrar la cuenta. Verifica los datos.';
             setStatus({ type: 'error', message: errorMsg });
         }
     };
