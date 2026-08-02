@@ -16,6 +16,57 @@ export const TRIAL_STATUSES = [
     { value: 'reprogramada', label: 'Reprogramada', color: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200' },
 ];
 
+// Contenido que la IA usa para responder. Cada tipo pide cosas distintas y, sobre
+// todo, se redacta distinto: estos textos son la única guía que tienen los dueños
+// del instituto, porque lo que escriben llega tal cual al prompt.
+export const CONTEXT_TYPE_META = {
+    pregunta_respuesta: {
+        label: 'Pregunta frecuente',
+        titleLabel: 'La pregunta del cliente',
+        titleHint: 'Escribila como la escribe la gente, no como la diría un folleto.',
+        titlePlaceholder: '¿Cuánto cuesta el curso?',
+        contentLabel: 'La respuesta',
+        contentHint: 'Escribí la respuesta tal cual se la mandarías al cliente por WhatsApp.',
+        contentPlaceholder: 'El curso regular cuesta Bs 350 al mes e incluye el material.',
+    },
+    regla: {
+        label: 'Regla',
+        titleLabel: 'Nombre de la regla',
+        titleHint: 'Un título corto para reconocerla en la lista.',
+        titlePlaceholder: 'Nunca prometer descuentos',
+        contentLabel: 'Qué debe hacer o evitar la IA',
+        contentHint: 'Hablale a la IA en imperativo, como una instrucción.',
+        contentPlaceholder: 'No ofrezcas rebajas que no estén cargadas como promoción activa.',
+    },
+    promocion: {
+        label: 'Promoción',
+        titleLabel: 'Nombre de la promoción',
+        titleHint: '',
+        titlePlaceholder: '2x1 de verano',
+        contentLabel: 'En qué consiste',
+        contentHint: 'Contala como se la contarías a un cliente interesado.',
+        contentPlaceholder: 'Trae a un amigo e inscribite: pagan una sola mensualidad los dos.',
+    },
+    flujo: {
+        label: 'Flujo del embudo',
+        titleLabel: 'Nombre del paso',
+        titleHint: 'Para reconocerlo en la lista.',
+        titlePlaceholder: 'Primer contacto sin nombre',
+        contentLabel: 'Guion: qué tiene que decir o hacer',
+        contentHint: 'Explicá en qué situación aplica y qué debe responder la IA.',
+        contentPlaceholder: 'Si todavía no sabés cómo se llama, preguntáselo antes de dar precios.',
+    },
+};
+
+// Coinciden con el enum NextAction del backend.
+export const NEXT_ACTIONS = [
+    { value: '', label: 'Ninguna acción especial' },
+    { value: 'pedir_nombre', label: 'Pedir el nombre' },
+    { value: 'enviar_test_nivel', label: 'Enviar el test de nivel' },
+    { value: 'ofrecer_clase_prueba', label: 'Ofrecer una clase de prueba' },
+    { value: 'derivar', label: 'Derivar a una persona' },
+];
+
 export const statusMeta = (list, value) =>
     list.find((s) => s.value === value) || { value, label: value, color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700', dot: 'bg-gray-400' };
 

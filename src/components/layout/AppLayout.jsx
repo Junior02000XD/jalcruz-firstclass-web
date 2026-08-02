@@ -18,6 +18,7 @@ import {
     ShoppingCart,
     Package,
     BookUser,
+    Sparkles,
     Sun,
     Moon,
 } from "lucide-react";
@@ -92,6 +93,7 @@ const Sidebar = ({ user, hasRole, onNavigate, onClose, onLogout }) => (
                     <NavLink to="/firstclass/campanas" icon={Megaphone} onClick={onNavigate}>Campañas</NavLink>
                     <NavLink to="/firstclass/profesores" icon={BookUser} onClick={onNavigate}>Profesores</NavLink>
                     <NavLink to="/firstclass/productos" icon={Package} onClick={onNavigate}>Productos</NavLink>
+                    <NavLink to="/firstclass/contenido" icon={Sparkles} onClick={onNavigate}>Contenido de la IA</NavLink>
                 </>
             )}
         </nav>
