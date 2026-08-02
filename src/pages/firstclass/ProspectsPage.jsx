@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
 import Modal from '../../components/ui/Modal';
-import { PROSPECT_STATUSES, statusMeta, whatsappLink, firstPhone } from '../../lib/crm';
+import { PROSPECT_STATUSES, statusMeta, whatsappLink, firstPhone, firstPhoneEntry } from '../../lib/crm';
 import { Plus, Search, UserPlus, Phone, MessageCircle, Trash2, MapPin, Megaphone } from 'lucide-react';
 
 const emptyForm = { first_name: '', last_name: '', phone: '', origin: '', zone_id: '', campaign_id: '', status: 'nuevo' };
@@ -112,9 +112,11 @@ const ProspectsPage = () => {
     );
 
     const PhoneActions = ({ person }) => {
-        const number = firstPhone(person);
+        const phone = firstPhoneEntry(person);
+        const number = phone?.number;
         if (!number) return <span className="text-gray-300 text-xs">Sin teléfono</span>;
-        const wa = whatsappLink(number);
+        // Se pasa el objeto, no el string: así el enlace usa el normalized_number de la API.
+        const wa = whatsappLink(phone);
         return (
             <div className="flex items-center gap-2">
                 <span className="font-mono text-sm text-gray-700 dark:text-gray-200">{number}</span>

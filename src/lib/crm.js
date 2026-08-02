@@ -23,17 +23,36 @@ export const statusMeta = (list, value) =>
 export const money = (n) =>
     `Bs ${Number(n || 0).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-// Construye un enlace de WhatsApp (Bolivia +591) a partir de un número.
-export const whatsappLink = (number) => {
+// Normalización local de respaldo: sólo dígitos y 591 adelante si quedan 8 o menos.
+// Es la MISMA regla que Services/PhoneNormalizer.cs en la API. Se conserva para
+// números que todavía no pasaron por el backend (formularios sin guardar) y para
+// respuestas viejas sin normalized_number.
+const normalizeLocal = (number) => {
     if (!number) return null;
     const clean = String(number).replace(/\D/g, '');
     if (!clean) return null;
-    const full = clean.length <= 8 ? `591${clean}` : clean;
-    return `https://wa.me/${full}`;
+    return clean.length <= 8 ? `591${clean}` : clean;
 };
 
-// Devuelve el primer teléfono de una persona (o null).
+// Construye un enlace de WhatsApp (Bolivia +591).
+//
+// Acepta un objeto phone de la API o un número suelto. Con el objeto usa
+// `normalized_number`, que calcula el backend: así el enlace apunta a la MISMA
+// conversación que el agente de WhatsApp busca con GET /prospects/by-phone,
+// en vez de depender de que dos implementaciones de la regla no se separen.
+export const whatsappLink = (phoneOrNumber) => {
+    if (!phoneOrNumber) return null;
+    const full = typeof phoneOrNumber === 'object'
+        ? phoneOrNumber.normalized_number || normalizeLocal(phoneOrNumber.number)
+        : normalizeLocal(phoneOrNumber);
+    return full ? `https://wa.me/${full}` : null;
+};
+
+// Primer teléfono de una persona, como lo cargaron (para mostrar y buscar).
 export const firstPhone = (person) => person?.phones?.[0]?.number || null;
+
+// El objeto phone completo, para quien necesite `normalized_number`.
+export const firstPhoneEntry = (person) => person?.phones?.[0] || null;
 
 // Fecha corta legible (acepta ISO o yyyy-mm-dd).
 export const shortDate = (value) => {
