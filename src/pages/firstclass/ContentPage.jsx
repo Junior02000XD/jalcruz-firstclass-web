@@ -3,9 +3,10 @@ import api from '../../api/axios';
 import { shortDate, CONTEXT_TYPE_META, NEXT_ACTIONS } from '../../lib/crm';
 import { Help, Empty } from '../../components/ui/Form';
 import MediaGallery from '../../components/MediaGallery';
+import PersonaPanel from '../../components/PersonaPanel';
 import ContextEntryModal from '../../components/ContextEntryModal';
 import {
-    Plus, MessageCircleQuestion, ShieldCheck, Tag, GitBranch, Images,
+    Plus, MessageCircleQuestion, ShieldCheck, Tag, GitBranch, Images, Bot,
     Edit2, Trash2, Image as ImageIcon, Music, CalendarClock, MapPin, ArrowRight,
 } from 'lucide-react';
 
@@ -13,6 +14,9 @@ import {
 // técnicos: cada sección explica en una línea cómo escribir el contenido,
 // porque la IA lo usa tal cual queda escrito.
 const TABS = [
+    // La voz va primera: sin una Persona activa, todo lo demás que se cargue acá
+    // no lo usa nadie, porque el agente queda pausado en ese número.
+    { key: 'voz', label: 'La voz del agente', icon: Bot, types: [] },
     { key: 'preguntas', label: 'Preguntas y reglas', icon: MessageCircleQuestion, types: ['pregunta_respuesta', 'regla'] },
     { key: 'multimedia', label: 'Multimedia', icon: Images, types: [] },
     { key: 'promociones', label: 'Promociones', icon: Tag, types: ['promocion'] },
@@ -115,7 +119,9 @@ const ContentPage = () => {
                 ))}
             </div>
 
-            {tab === 'multimedia' ? (
+            {tab === 'voz' ? (
+                <PersonaPanel users={users} />
+            ) : tab === 'multimedia' ? (
                 <MediaGallery assets={assets} onChanged={load} />
             ) : (
                 <>
