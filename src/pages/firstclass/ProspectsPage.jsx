@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
 import Modal from '../../components/ui/Modal';
 import { PROSPECT_STATUSES, statusMeta, whatsappLink, firstPhone, firstPhoneEntry } from '../../lib/crm';
-import { Plus, Search, UserPlus, Phone, MessageCircle, Trash2, MapPin, Megaphone } from 'lucide-react';
+import { Plus, Search, UserPlus, Phone, MessageCircle, Trash2, MapPin, Megaphone, Bot, UserCheck } from 'lucide-react';
 
 const emptyForm = { first_name: '', last_name: '', phone: '', origin: '', zone_id: '', campaign_id: '', status: 'nuevo' };
 
@@ -10,6 +10,8 @@ const ProspectsPage = () => {
     const [prospects, setProspects] = useState([]);
     const [zones, setZones] = useState([]);
     const [campaigns, setCampaigns] = useState([]);
+    // Personas del CRM a las que se le puede pasar una conversación.
+    const [assignables, setAssignables] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('todos');
     const [search, setSearch] = useState('');
@@ -19,14 +21,16 @@ const ProspectsPage = () => {
 
     const load = useCallback(async () => {
         try {
-            const [p, z, c] = await Promise.all([
+            const [p, z, c, a] = await Promise.all([
                 api.get('/prospects'),
                 api.get('/zones'),
                 api.get('/campaigns'),
+                api.get('/users/assignable'),
             ]);
             setProspects(p.data);
             setZones(z.data);
             setCampaigns(c.data);
+            setAssignables(a.data);
         } catch (e) {
             console.error(e);
         } finally {
@@ -61,20 +65,33 @@ const ProspectsPage = () => {
         }
     };
 
+    // PATCH y no PUT: el PUT pisa con null todo campo que el payload no traiga,
+    // y acá no se mandaba entity_id — cambiar el estado desde el panel lo borraba.
+    // El endpoint de estado existe justamente para esto.
     const changeStatus = async (prospect, status) => {
         try {
-            await api.put(`/prospects/${prospect.id}`, {
-                person_id: prospect.person_id,
-                campaign_id: prospect.campaign_id,
-                zone_id: prospect.zone_id,
-                origin: prospect.origin,
-                address: prospect.address,
-                notes: prospect.notes,
-                status,
-            });
+            await api.patch(`/prospects/${prospect.id}/status`, { status });
             setProspects((prev) => prev.map((p) => (p.id === prospect.id ? { ...p, status } : p)));
         } catch (e) {
-            alert('No se pudo actualizar el estado.');
+            alert(e.response?.data?.message || 'No se pudo actualizar el estado.');
+            console.error(e);
+        }
+    };
+
+    // Quién atiende la conversación. null = la IA.
+    //
+    // Esto ES la lista negra del agente de WhatsApp: mientras el prospecto tenga
+    // una persona asignada, el bot NO le responde nunca. Es el mismo campo que se
+    // marca solo cuando alguien contesta a mano desde su celular; acá se puede
+    // poner y sacar a propósito, por ejemplo para un proveedor o un conocido que
+    // no hay que atender con respuestas automáticas.
+    const changeAssignment = async (prospect, value) => {
+        const assigned_to_user_id = value === '' ? null : Number(value);
+        try {
+            await api.patch(`/prospects/${prospect.id}/assignment`, { assigned_to_user_id });
+            setProspects((prev) => prev.map((p) => (p.id === prospect.id ? { ...p, assigned_to_user_id } : p)));
+        } catch (e) {
+            alert(e.response?.data?.message || 'No se pudo cambiar quién atiende.');
             console.error(e);
         }
     };
@@ -110,6 +127,32 @@ const ProspectsPage = () => {
             {PROSPECT_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
     );
+
+    const AttendedBy = ({ prospect }) => {
+        const asignado = prospect.assigned_to_user_id != null;
+        return (
+            <div className="flex items-center gap-1.5">
+                {asignado
+                    ? <UserCheck size={13} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                    : <Bot size={13} className="text-emerald-600 dark:text-emerald-400 shrink-0" />}
+                <select
+                    value={prospect.assigned_to_user_id ?? ''}
+                    onChange={(e) => changeAssignment(prospect, e.target.value)}
+                    title={asignado
+                        ? 'Lo atiende una persona: el bot no le responde'
+                        : 'Lo atiende la IA automáticamente'}
+                    className={`text-xs font-bold border rounded-lg px-2 py-1 focus:outline-none cursor-pointer ${
+                        asignado
+                            ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/30'
+                            : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
+                    }`}
+                >
+                    <option value="">La atiende la IA</option>
+                    {assignables.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+                </select>
+            </div>
+        );
+    };
 
     const PhoneActions = ({ person }) => {
         const phone = firstPhoneEntry(person);
@@ -194,6 +237,7 @@ const ProspectsPage = () => {
                                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Contacto</th>
                                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Origen / Zona</th>
                                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Estado</th>
+                                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Atiende</th>
                                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -212,6 +256,7 @@ const ProspectsPage = () => {
                                             </div>
                                         </td>
                                         <td className="px-5 py-3"><StatusSelect prospect={p} /></td>
+                                        <td className="px-5 py-3"><AttendedBy prospect={p} /></td>
                                         <td className="px-5 py-3">
                                             <div className="flex justify-center">
                                                 <button onClick={() => handleDelete(p.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/30 rounded-lg" title="Eliminar">
@@ -242,7 +287,10 @@ const ProspectsPage = () => {
                                     {p.origin && <span className="flex items-center gap-1"><Megaphone size={11} /> {p.origin}</span>}
                                     {p.zone?.name && <span className="flex items-center gap-1"><MapPin size={11} /> {p.zone.name}</span>}
                                 </div>
-                                <div className="mt-3"><StatusSelect prospect={p} /></div>
+                                <div className="mt-3 flex flex-wrap items-center gap-2">
+                                    <StatusSelect prospect={p} />
+                                    <AttendedBy prospect={p} />
+                                </div>
                             </div>
                         ))}
                     </div>

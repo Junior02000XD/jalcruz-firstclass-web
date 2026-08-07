@@ -4,7 +4,7 @@ import Modal from '../../components/ui/Modal';
 import { money, shortDate } from '../../lib/crm';
 import { Plus, Megaphone, Edit2, Trash2, TrendingUp } from 'lucide-react';
 
-const empty = { name: '', type: '', budget: '', execution_date: '', url: '', description: '' };
+const empty = { name: '', type: '', budget: '', execution_date: '', url: '', description: '', ad_id: '' };
 
 const CampaignsPage = () => {
     const [campaigns, setCampaigns] = useState([]);
@@ -32,7 +32,7 @@ const CampaignsPage = () => {
         setForm(c ? {
             name: c.name || '', type: c.type || '', budget: c.budget ?? '',
             execution_date: c.execution_date ? c.execution_date.slice(0, 10) : '',
-            url: c.url || '', description: c.description || '',
+            url: c.url || '', description: c.description || '', ad_id: c.ad_id || '',
         } : empty);
         setIsOpen(true);
     };
@@ -47,6 +47,7 @@ const CampaignsPage = () => {
                 execution_date: form.execution_date || null,
                 url: form.url || null,
                 description: form.description || null,
+                ad_id: form.ad_id || null,
             };
             if (editing) await api.put(`/campaigns/${editing.id}`, payload);
             else await api.post('/campaigns', payload);
@@ -124,6 +125,23 @@ const CampaignsPage = () => {
                         <Field label="URL"><input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} className={cls} placeholder="https://..." /></Field>
                     </div>
                     <Field label="Descripción"><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} className={cls} /></Field>
+                    {/* Ata los prospectos que llegan por un anuncio click-to-WhatsApp a esta
+                        campaña: el mensaje entrante trae ese id en referral.source_id. Sin
+                        esto el lead se registra igual, pero sin saber de qué campaña vino. */}
+                    <Field label="ID del anuncio de Meta">
+                        <input
+                            value={form.ad_id}
+                            onChange={(e) => setForm({ ...form, ad_id: e.target.value })}
+                            className={cls}
+                            inputMode="numeric"
+                            placeholder="120247859565370278"
+                        />
+                        <p className="mt-1 text-[11px] leading-snug text-gray-500 dark:text-gray-400">
+                            Opcional. Con esto, quien escriba desde el anuncio queda atribuido a
+                            esta campaña automáticamente. Está en el Administrador de anuncios de
+                            Meta, como <span className="font-mono">ID del anuncio</span>.
+                        </p>
+                    </Field>
                     <div className="flex justify-end gap-3 pt-2">
                         <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl">Cancelar</button>
                         <button type="submit" className="px-6 py-2 text-sm bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl shadow active:scale-95 transition-all">{editing ? 'Actualizar' : 'Guardar'}</button>
