@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
 import Modal from '../../components/ui/Modal';
 import { PROSPECT_STATUSES, statusMeta, whatsappLink, firstPhone, firstPhoneEntry } from '../../lib/crm';
-import { Plus, Search, UserPlus, Phone, MessageCircle, Trash2, MapPin, Megaphone, Bot, UserCheck } from 'lucide-react';
+import { Plus, Search, UserPlus, Phone, MessageCircle, Trash2, MapPin, Megaphone, Bot, UserCheck, MessagesSquare } from 'lucide-react';
+import ConversationModal from '../../components/ConversationModal';
 
 const emptyForm = { first_name: '', last_name: '', phone: '', origin: '', zone_id: '', campaign_id: '', status: 'nuevo' };
 
@@ -18,6 +19,8 @@ const ProspectsPage = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [form, setForm] = useState(emptyForm);
     const [saving, setSaving] = useState(false);
+    // Prospecto cuya conversación se está mirando. null = visor cerrado.
+    const [verConversacion, setVerConversacion] = useState(null);
 
     const load = useCallback(async () => {
         try {
@@ -258,7 +261,10 @@ const ProspectsPage = () => {
                                         <td className="px-5 py-3"><StatusSelect prospect={p} /></td>
                                         <td className="px-5 py-3"><AttendedBy prospect={p} /></td>
                                         <td className="px-5 py-3">
-                                            <div className="flex justify-center">
+                                            <div className="flex justify-center gap-1.5">
+                                                <button onClick={() => setVerConversacion(p)} className="p-1.5 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg" title="Ver conversación">
+                                                    <MessagesSquare size={15} />
+                                                </button>
                                                 <button onClick={() => handleDelete(p.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/30 rounded-lg" title="Eliminar">
                                                     <Trash2 size={15} />
                                                 </button>
@@ -279,9 +285,14 @@ const ProspectsPage = () => {
                                         <p className="font-bold text-gray-900 dark:text-gray-100 truncate">{p.person?.first_name} {p.person?.last_name}</p>
                                         <div className="mt-1"><PhoneActions person={p.person} /></div>
                                     </div>
-                                    <button onClick={() => handleDelete(p.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 rounded-lg shrink-0">
-                                        <Trash2 size={15} />
-                                    </button>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                        <button onClick={() => setVerConversacion(p)} className="p-1.5 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg" title="Ver conversación">
+                                            <MessagesSquare size={15} />
+                                        </button>
+                                        <button onClick={() => handleDelete(p.id)} className="p-1.5 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 rounded-lg">
+                                            <Trash2 size={15} />
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
                                     {p.origin && <span className="flex items-center gap-1"><Megaphone size={11} /> {p.origin}</span>}
@@ -296,6 +307,13 @@ const ProspectsPage = () => {
                     </div>
                 </>
             )}
+
+            {/* VISOR DE CONVERSACIÓN — lo mismo que lee la IA antes de contestar */}
+            <ConversationModal
+                prospect={verConversacion}
+                isOpen={verConversacion !== null}
+                onClose={() => setVerConversacion(null)}
+            />
 
             {/* MODAL ALTA RÁPIDA */}
             <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Nuevo prospecto">
