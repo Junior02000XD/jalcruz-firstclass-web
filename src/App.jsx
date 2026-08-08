@@ -18,6 +18,7 @@ import SalesPage from './pages/firstclass/SalesPage';
 import CampaignsPage from './pages/firstclass/CampaignsPage';
 import TeachersPage from './pages/firstclass/TeachersPage';
 import ProductsPage from './pages/firstclass/ProductsPage';
+import ZonesPage from './pages/firstclass/ZonesPage';
 import ContentPage from './pages/firstclass/ContentPage';
 
 function App() {
@@ -74,6 +75,9 @@ function App() {
           } />
           <Route path="/firstclass/productos" element={
             <ProtectedRoute requiredRole="CRM Admin"><ProductsPage /></ProtectedRoute>
+          } />
+          <Route path="/firstclass/zonas" element={
+            <ProtectedRoute requiredRole="CRM Admin"><ZonesPage /></ProtectedRoute>
           } />
           <Route path="/firstclass/contenido" element={
             <ProtectedRoute requiredRole="CRM Admin"><ContentPage /></ProtectedRoute>

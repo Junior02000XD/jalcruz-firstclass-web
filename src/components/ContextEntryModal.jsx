@@ -9,7 +9,8 @@ const buildForm = (editing) => ({
     content: editing?.content || '',
     active: editing?.active ?? true,
     valid_until: editing?.valid_until || '',
-    restricted_zone_id: editing?.restricted_zone_id ?? '',
+    // La API devuelve la unión como `zones: [{ zone: {...} }]`.
+    restricted_zone_ids: (editing?.zones || []).map((z) => z.zone.id),
     conditions_text: editing?.conditions_text || '',
     next_action: editing?.next_action || '',
     handoff_to_user_id: editing?.handoff_to_user_id ?? '',
@@ -23,6 +24,13 @@ const EntryForm = ({ type, editing, assets, zones, users, onSave, onClose }) => 
     const [form, setForm] = useState(() => buildForm(editing));
     const [saving, setSaving] = useState(false);
     const meta = CONTEXT_TYPE_META[type];
+
+    const toggleZone = (id) => setForm((f) => ({
+        ...f,
+        restricted_zone_ids: f.restricted_zone_ids.includes(id)
+            ? f.restricted_zone_ids.filter((x) => x !== id)
+            : [...f.restricted_zone_ids, id],
+    }));
 
     const toggleAsset = (id) => setForm((f) => ({
         ...f,
@@ -41,7 +49,7 @@ const EntryForm = ({ type, editing, assets, zones, users, onSave, onClose }) => 
                 content: form.content,
                 active: form.active,
                 valid_until: form.valid_until || null,
-                restricted_zone_id: form.restricted_zone_id === '' ? null : Number(form.restricted_zone_id),
+                restricted_zone_ids: form.restricted_zone_ids,
                 conditions_text: form.conditions_text || null,
                 next_action: form.next_action || null,
                 handoff_to_user_id: form.handoff_to_user_id === '' ? null : Number(form.handoff_to_user_id),
@@ -69,12 +77,41 @@ const EntryForm = ({ type, editing, assets, zones, users, onSave, onClose }) => 
                             <input type="date" value={form.valid_until}
                                 onChange={(e) => setForm({ ...form, valid_until: e.target.value })} className={inputCls} />
                         </Field>
-                        <Field label="Sólo para una zona" hint="Dejalo vacío si vale para todos.">
-                            <select value={form.restricted_zone_id}
-                                onChange={(e) => setForm({ ...form, restricted_zone_id: e.target.value })} className={inputCls}>
-                                <option value="">Todas las zonas</option>
-                                {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
-                            </select>
+                        <Field
+                            label="Zonas"
+                            hint={form.restricted_zone_ids.length === 0
+                                ? 'Sin marcar ninguna, vale para todas las zonas.'
+                                : `Sólo para ${form.restricted_zone_ids.length} zona(s). Desmarcá todas para que valga en todas.`}
+                        >
+                            {zones.length === 0 ? (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 py-2">
+                                    No hay zonas cargadas todavía. Se crean en <b>Zonas</b>.
+                                </p>
+                            ) : (
+                                <div className="flex flex-wrap gap-1.5">
+                                    {/* Chips en vez de un desplegable múltiple: en el celular un
+                                        select multiple es casi imposible de usar, y acá se ve de
+                                        un vistazo qué quedó marcado. */}
+                                    {zones.map((z) => {
+                                        const marcada = form.restricted_zone_ids.includes(z.id);
+                                        return (
+                                            <button
+                                                key={z.id}
+                                                type="button"
+                                                onClick={() => toggleZone(z.id)}
+                                                aria-pressed={marcada}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+                                                    marcada
+                                                        ? 'bg-yellow-500 border-yellow-500 text-white'
+                                                        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                }`}
+                                            >
+                                                {z.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </Field>
                     </div>
                     <Field label="Condiciones" hint="La letra chica: a quiénes aplica, qué queda afuera.">
