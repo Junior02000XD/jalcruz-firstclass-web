@@ -1,10 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../../api/axios';
 import { LoadError } from '../../components/ui/Form';
 import Modal from '../../components/ui/Modal';
 import { PROSPECT_STATUSES, statusMeta, whatsappLink, firstPhoneEntry } from '../../lib/crm';
-import { Plus, Search, UserPlus, Phone, MessageCircle, Trash2, MapPin, Megaphone, Bot, UserCheck, MessagesSquare } from 'lucide-react';
+import { Plus, Search, UserPlus, Phone, MessageCircle, Trash2, MapPin, Megaphone, Bot, UserCheck, MessagesSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import ConversationModal from '../../components/ConversationModal';
+
+// Prospectos por página. La lista se pagina en la API: con ~900 contactos
+// (uno más por cada persona que escribe al WhatsApp) bajar todos en cada
+// visita hacía lenta la pantalla, y era la que más se abre.
+const PAGE_SIZE = 25;
 
 const emptyForm = { first_name: '', last_name: '', phone: '', origin: '', zone_id: '', campaign_id: '', status: 'nuevo' };
 
@@ -18,34 +23,84 @@ const ProspectsPage = () => {
     const [loadError, setLoadError] = useState(null);
     const [filter, setFilter] = useState('todos');
     const [search, setSearch] = useState('');
+    // La búsqueda va a la API, así que se espera a que se deje de tipear.
+    const [searchApplied, setSearchApplied] = useState('');
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(0);
+    // Totales por estado (los números de las pestañas), calculados por la API
+    // sobre todo el CRM: una página sola no alcanza para contarlos.
+    const [counts, setCounts] = useState({});
+    const [fetching, setFetching] = useState(false);
+    // Número de la última petición: si el usuario cambia de página o de filtro
+    // antes de que llegue la respuesta anterior, esa respuesta se descarta.
+    const pedido = useRef(0);
     const [isOpen, setIsOpen] = useState(false);
     const [form, setForm] = useState(emptyForm);
     const [saving, setSaving] = useState(false);
     // Prospecto cuya conversación se está mirando. null = visor cerrado.
     const [verConversacion, setVerConversacion] = useState(null);
 
-    const load = useCallback(async () => {
+    // Catálogos de los selectores: cambian poco, se piden una vez.
+    const loadCatalogs = useCallback(async () => {
         try {
-            const [p, z, c, a] = await Promise.all([
-                api.get('/prospects'),
+            const [z, c, a] = await Promise.all([
                 api.get('/zones'),
                 api.get('/campaigns'),
                 api.get('/users/assignable'),
             ]);
-            setProspects(p.data);
             setZones(z.data);
             setCampaigns(c.data);
             setAssignables(a.data);
         } catch (e) {
             console.error(e);
             setLoadError(e);
-        } finally {
-            setLoading(false);
         }
     }, []);
 
+    const load = useCallback(async () => {
+        const n = ++pedido.current;
+        setFetching(true);
+        try {
+            const params = { page, page_size: PAGE_SIZE };
+            if (filter !== 'todos') params.status = filter;
+            if (searchApplied) params.search = searchApplied;
+            const { data } = await api.get('/prospects', { params });
+            if (n !== pedido.current) return;
+            // Si se borró el último de la última página, se retrocede una.
+            const ultima = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
+            if (page > ultima) { setPage(ultima); return; }
+            setProspects(data.data);
+            setTotal(data.total);
+            setCounts(data.counts || {});
+        } catch (e) {
+            if (n !== pedido.current) return;
+            console.error(e);
+            setLoadError(e);
+        } finally {
+            if (n === pedido.current) {
+                setFetching(false);
+                setLoading(false);
+            }
+        }
+    }, [page, filter, searchApplied]);
+
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial de datos al montar
+    useEffect(() => { loadCatalogs(); }, [loadCatalogs]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- recarga al cambiar página, filtro o búsqueda
     useEffect(() => { load(); }, [load]);
+
+    useEffect(() => {
+        const t = setTimeout(() => {
+            setSearchApplied(search.trim());
+            setPage(1);
+        }, 350);
+        return () => clearTimeout(t);
+    }, [search]);
+
+    const changeFilter = (value) => {
+        setFilter(value);
+        setPage(1);
+    };
 
     const handleQuickSave = async (e) => {
         e.preventDefault();
@@ -70,7 +125,7 @@ const ProspectsPage = () => {
             }
             setForm(emptyForm);
             setIsOpen(false);
-            load();
+            if (page === 1) load(); else setPage(1);
         } catch (err) {
             alert('No se pudo registrar el prospecto.');
             console.error(err);
@@ -86,6 +141,9 @@ const ProspectsPage = () => {
         try {
             await api.patch(`/prospects/${prospect.id}/status`, { status });
             setProspects((prev) => prev.map((p) => (p.id === prospect.id ? { ...p, status } : p)));
+            // Los totales de las pestañas cambian, y si hay un filtro activo
+            // el prospecto puede salir de esta vista.
+            load();
         } catch (e) {
             alert(e.response?.data?.message || 'No se pudo actualizar el estado.');
             console.error(e);
@@ -114,29 +172,14 @@ const ProspectsPage = () => {
         if (!window.confirm('¿Eliminar este prospecto?')) return;
         try {
             await api.delete(`/prospects/${id}`);
-            setProspects((prev) => prev.filter((p) => p.id !== id));
+            load();
         } catch { alert('Error al eliminar.'); }
     };
 
-    const counts = PROSPECT_STATUSES.reduce((acc, s) => {
-        acc[s.value] = prospects.filter((p) => p.status === s.value).length;
-        return acc;
-    }, {});
-
-    const visible = prospects.filter((p) => {
-        if (filter !== 'todos' && p.status !== filter) return false;
-        const term = search.toLowerCase().trim();
-        if (!term) return true;
-        const name = `${p.person?.first_name || ''} ${p.person?.last_name || ''}`.toLowerCase();
-        if (name.includes(term) || (p.origin || '').toLowerCase().includes(term)) return true;
-        // Por teléfono se compara sólo dígitos, contra lo cargado y contra la forma
-        // normalizada (con 591): así "7771-2345", "77712345" y "+591 77712345"
-        // encuentran el mismo número.
-        const digits = term.replace(/\D/g, '');
-        if (!digits) return false;
-        const ph = firstPhoneEntry(p.person);
-        return [ph?.number, ph?.normalized_number].some((n) => (n || '').replace(/\D/g, '').includes(digits));
-    });
+    const totalTodos = PROSPECT_STATUSES.reduce((sum, st) => sum + (counts[st.value] || 0), 0);
+    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const desde = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+    const hasta = Math.min(page * PAGE_SIZE, total);
 
     const StatusSelect = ({ prospect }) => (
         <select
@@ -214,15 +257,15 @@ const ProspectsPage = () => {
             {/* Filtros por estado (chips, scroll horizontal en móvil) */}
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                 <button
-                    onClick={() => setFilter('todos')}
+                    onClick={() => changeFilter('todos')}
                     className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${filter === 'todos' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'}`}
                 >
-                    Todos ({prospects.length})
+                    Todos ({totalTodos})
                 </button>
                 {PROSPECT_STATUSES.map((s) => (
                     <button
                         key={s.value}
-                        onClick={() => setFilter(s.value)}
+                        onClick={() => changeFilter(s.value)}
                         className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${filter === s.value ? 'bg-gray-900 text-white border-gray-900' : `bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300`}`}
                     >
                         {s.label} ({counts[s.value] || 0})
@@ -242,13 +285,13 @@ const ProspectsPage = () => {
                 />
             </div>
 
-            {visible.length === 0 ? (
+            {prospects.length === 0 ? (
                 <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl py-16 text-center">
                     <UserPlus className="mx-auto text-gray-300" size={32} />
                     <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">No hay prospectos en esta vista.</p>
                 </div>
             ) : (
-                <>
+                <div className={`flex flex-col gap-3 transition-opacity ${fetching ? 'opacity-50' : ''}`}>
                     {/* TABLA (desktop) */}
                     <div className="hidden md:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
                         <table className="w-full text-left">
@@ -263,7 +306,7 @@ const ProspectsPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-sm">
-                                {visible.map((p) => (
+                                {prospects.map((p) => (
                                     <tr key={p.id} className="hover:bg-yellow-50/30 transition-colors">
                                         <td className="px-5 py-3 font-bold text-gray-900 dark:text-gray-100">
                                             {p.person?.first_name} {p.person?.last_name}
@@ -296,7 +339,7 @@ const ProspectsPage = () => {
 
                     {/* TARJETAS (móvil) */}
                     <div className="md:hidden flex flex-col gap-3">
-                        {visible.map((p) => (
+                        {prospects.map((p) => (
                             <div key={p.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
@@ -323,7 +366,31 @@ const ProspectsPage = () => {
                             </div>
                         ))}
                     </div>
-                </>
+
+                    {/* PAGINACIÓN */}
+                    <div className="flex items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-400">
+                        <span>{desde}–{hasta} de {total}</span>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                disabled={page <= 1 || fetching}
+                                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 disabled:opacity-40"
+                                title="Página anterior"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <span className="font-medium text-gray-700 dark:text-gray-200">Página {page} de {pages}</span>
+                            <button
+                                onClick={() => setPage((p) => Math.min(pages, p + 1))}
+                                disabled={page >= pages || fetching}
+                                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 disabled:opacity-40"
+                                title="Página siguiente"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* VISOR DE CONVERSACIÓN — lo mismo que lee la IA antes de contestar */}
