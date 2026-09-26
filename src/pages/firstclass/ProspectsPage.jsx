@@ -64,14 +64,20 @@ const ProspectsPage = () => {
             const params = { page, page_size: PAGE_SIZE };
             if (filter !== 'todos') params.status = filter;
             if (searchApplied) params.search = searchApplied;
-            const { data } = await api.get('/prospects', { params });
+            const res = await api.get('/prospects', { params });
             if (n !== pedido.current) return;
+            // Una API que todavía no pagina (se despliegan por separado: Pages
+            // suele publicar antes que Railway) devuelve el array entero y
+            // filtrado por estado. Se pagina acá para no romper la pantalla.
+            const data = Array.isArray(res.data)
+                ? { data: res.data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE), total: res.data.length, counts: null }
+                : res.data;
             // Si se borró el último de la última página, se retrocede una.
             const ultima = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
             if (page > ultima) { setPage(ultima); return; }
             setProspects(data.data);
             setTotal(data.total);
-            setCounts(data.counts || {});
+            if (data.counts) setCounts(data.counts);
         } catch (e) {
             if (n !== pedido.current) return;
             console.error(e);
