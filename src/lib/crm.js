@@ -119,3 +119,17 @@ export const shortDateTime = (value) => {
     if (isNaN(d)) return value;
     return d.toLocaleString('es-BO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 };
+
+// Fecha de hoy (yyyy-mm-dd) en la hora del navegador. `toISOString()` da la
+// fecha UTC, y en Bolivia (UTC−4) desde las 20:00 ya es "mañana".
+export const todayLocal = () => new Date().toLocaleDateString('en-CA');
+
+// ISO de la API (UTC, con Z) → valor para un <input type="datetime-local">,
+// en hora local. Cortar el ISO con slice(0, 16) mostraba la hora UTC: 4 h corrida.
+export const toLocalInput = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+};

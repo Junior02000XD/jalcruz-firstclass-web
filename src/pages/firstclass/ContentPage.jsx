@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
-import { shortDate, CONTEXT_TYPE_META, NEXT_ACTIONS } from '../../lib/crm';
-import { Help, Empty } from '../../components/ui/Form';
+import { shortDate, todayLocal, CONTEXT_TYPE_META, NEXT_ACTIONS } from '../../lib/crm';
+import { Help, Empty, LoadError } from '../../components/ui/Form';
 import MediaGallery from '../../components/MediaGallery';
 import PersonaPanel from '../../components/PersonaPanel';
 import ContextEntryModal from '../../components/ContextEntryModal';
@@ -48,6 +48,7 @@ const ContentPage = () => {
     const [zones, setZones] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(null);
     const [modal, setModal] = useState({ open: false, type: 'pregunta_respuesta', editing: null });
 
     const load = useCallback(async () => {
@@ -62,7 +63,7 @@ const ContentPage = () => {
             setAssets(m.data);
             setZones(z.data);
             setUsers(u.data);
-        } catch (err) { console.error(err); }
+        } catch (err) { console.error(err); setLoadError(err); }
         finally { setLoading(false); }
     }, []);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial de datos al montar
@@ -94,6 +95,7 @@ const ContentPage = () => {
     const visible = entries.filter((e) => current.types.includes(e.type));
 
     if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando...</div>;
+    if (loadError) return <LoadError error={loadError} />;
 
     return (
         <div className="flex flex-col gap-5">
@@ -171,7 +173,7 @@ const ContentPage = () => {
 };
 
 const EntryCard = ({ entry, users, onToggle, onEdit, onRemove }) => {
-    const expired = entry.valid_until && entry.valid_until < new Date().toISOString().slice(0, 10);
+    const expired = entry.valid_until && entry.valid_until < todayLocal();
     const handoff = users.find((u) => u.id === entry.handoff_to_user_id);
     const action = NEXT_ACTIONS.find((a) => a.value === entry.next_action);
 
@@ -206,7 +208,11 @@ const EntryCard = ({ entry, users, onToggle, onEdit, onRemove }) => {
                         {expired ? `Venció el ${shortDate(entry.valid_until)}` : `Hasta el ${shortDate(entry.valid_until)}`}
                     </Chip>
                 )}
-                {entry.restricted_zone?.name && <Chip icon={MapPin}>Sólo {entry.restricted_zone.name}</Chip>}
+                {/* La API devuelve `zones` desde que una promo puede valer en varias; el
+                    `restricted_zone` de antes ya no existe y el chip no salía nunca. */}
+                {(entry.zones || []).map((z) => z.zone && (
+                    <Chip key={z.zone.id} icon={MapPin}>Sólo {z.zone.name}</Chip>
+                ))}
                 {action?.value && <Chip icon={ArrowRight}>{action.label}</Chip>}
                 {handoff && <Chip icon={ArrowRight}>Deriva a {handoff.name}</Chip>}
                 {(entry.media || []).map((m) => (

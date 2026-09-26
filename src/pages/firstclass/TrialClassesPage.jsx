@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
+import { LoadError } from '../../components/ui/Form';
 import Modal from '../../components/ui/Modal';
-import { TRIAL_STATUSES, statusMeta, shortDateTime } from '../../lib/crm';
+import { TRIAL_STATUSES, statusMeta, shortDateTime, toLocalInput } from '../../lib/crm';
 import { Plus, CalendarClock, Edit2, Trash2, Check, X } from 'lucide-react';
 
 const empty = { prospect_id: '', teacher_id: '', schedule: '', status: 'programada', attendance_bool: false };
@@ -11,6 +12,7 @@ const TrialClassesPage = () => {
     const [teachers, setTeachers] = useState([]);
     const [prospects, setProspects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState(empty);
@@ -23,7 +25,7 @@ const TrialClassesPage = () => {
             setClasses(t.data);
             setTeachers(te.data);
             setProspects(p.data);
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error(e); setLoadError(e); }
         finally { setLoading(false); }
     }, []);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial de datos al montar
@@ -33,7 +35,7 @@ const TrialClassesPage = () => {
         setEditing(c);
         setForm(c ? {
             prospect_id: c.prospect_id, teacher_id: c.teacher_id || '',
-            schedule: c.schedule ? c.schedule.slice(0, 16) : '',
+            schedule: toLocalInput(c.schedule),
             status: c.status, attendance_bool: c.attendance_bool,
         } : empty);
         setIsOpen(true);
@@ -45,9 +47,13 @@ const TrialClassesPage = () => {
             const payload = {
                 prospect_id: Number(form.prospect_id),
                 teacher_id: form.teacher_id || null,
-                schedule: form.schedule,
+                // El input da hora local sin zona; la API guarda UTC (timestamptz).
+                schedule: new Date(form.schedule).toISOString(),
                 status: form.status,
                 attendance_bool: form.attendance_bool,
+                // El PUT asigna todos los campos: sin esto se perdía el vínculo
+                // con la clase original de una reprogramación.
+                reprogrammed_from_id: editing?.reprogrammed_from_id ?? null,
             };
             if (editing) await api.put(`/trial-classes/${editing.id}`, payload);
             else await api.post('/trial-classes', payload);
@@ -64,6 +70,7 @@ const TrialClassesPage = () => {
     const prospectName = (c) => c.prospect?.person ? `${c.prospect.person.first_name} ${c.prospect.person.last_name || ''}`.trim() : `Prospecto #${c.prospect_id}`;
 
     if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando...</div>;
+    if (loadError) return <LoadError error={loadError} />;
 
     return (
         <div className="flex flex-col gap-5">

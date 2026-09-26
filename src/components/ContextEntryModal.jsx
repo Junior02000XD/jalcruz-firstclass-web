@@ -52,7 +52,10 @@ const EntryForm = ({ type, editing, assets, zones, users, onSave, onClose }) => 
                 restricted_zone_ids: form.restricted_zone_ids,
                 conditions_text: form.conditions_text || null,
                 next_action: form.next_action || null,
-                handoff_to_user_id: form.handoff_to_user_id === '' ? null : Number(form.handoff_to_user_id),
+                // Sólo cuenta si la acción es derivar: si no, quedaba guardado un
+                // "Deriva a X" de una elección anterior y el agente lo recibía igual.
+                handoff_to_user_id: form.next_action === 'derivar' && form.handoff_to_user_id !== ''
+                    ? Number(form.handoff_to_user_id) : null,
                 media_asset_ids: form.media_asset_ids,
             });
         } finally { setSaving(false); }

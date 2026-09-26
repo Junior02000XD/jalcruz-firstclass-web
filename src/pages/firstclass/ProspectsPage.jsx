@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
+import { LoadError } from '../../components/ui/Form';
 import Modal from '../../components/ui/Modal';
-import { PROSPECT_STATUSES, statusMeta, whatsappLink, firstPhone, firstPhoneEntry } from '../../lib/crm';
+import { PROSPECT_STATUSES, statusMeta, whatsappLink, firstPhoneEntry } from '../../lib/crm';
 import { Plus, Search, UserPlus, Phone, MessageCircle, Trash2, MapPin, Megaphone, Bot, UserCheck, MessagesSquare } from 'lucide-react';
 import ConversationModal from '../../components/ConversationModal';
 
@@ -14,6 +15,7 @@ const ProspectsPage = () => {
     // Personas del CRM a las que se le puede pasar una conversación.
     const [assignables, setAssignables] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(null);
     const [filter, setFilter] = useState('todos');
     const [search, setSearch] = useState('');
     const [isOpen, setIsOpen] = useState(false);
@@ -36,6 +38,7 @@ const ProspectsPage = () => {
             setAssignables(a.data);
         } catch (e) {
             console.error(e);
+            setLoadError(e);
         } finally {
             setLoading(false);
         }
@@ -48,7 +51,7 @@ const ProspectsPage = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            await api.post('/prospects/quick', {
+            const res = await api.post('/prospects/quick', {
                 first_name: form.first_name,
                 last_name: form.last_name || null,
                 phone: form.phone || null,
@@ -57,6 +60,14 @@ const ProspectsPage = () => {
                 campaign_id: form.campaign_id || null,
                 status: form.status,
             });
+            // 200 = el número ya era de un prospecto y la API devolvió ese, sin
+            // crear nada. Antes el modal se cerraba igual y lo tipeado se perdía.
+            if (res.status === 200) {
+                const pe = res.data?.person;
+                const quien = pe ? `${pe.first_name} ${pe.last_name || ''}`.trim() : `el prospecto #${res.data?.id}`;
+                alert(`Ese número ya es de ${quien}. No se creó un prospecto nuevo.`);
+                return;
+            }
             setForm(emptyForm);
             setIsOpen(false);
             load();
@@ -117,8 +128,14 @@ const ProspectsPage = () => {
         const term = search.toLowerCase().trim();
         if (!term) return true;
         const name = `${p.person?.first_name || ''} ${p.person?.last_name || ''}`.toLowerCase();
-        const phone = firstPhone(p.person) || '';
-        return name.includes(term) || phone.includes(term) || (p.origin || '').toLowerCase().includes(term);
+        if (name.includes(term) || (p.origin || '').toLowerCase().includes(term)) return true;
+        // Por teléfono se compara sólo dígitos, contra lo cargado y contra la forma
+        // normalizada (con 591): así "7771-2345", "77712345" y "+591 77712345"
+        // encuentran el mismo número.
+        const digits = term.replace(/\D/g, '');
+        if (!digits) return false;
+        const ph = firstPhoneEntry(p.person);
+        return [ph?.number, ph?.normalized_number].some((n) => (n || '').replace(/\D/g, '').includes(digits));
     });
 
     const StatusSelect = ({ prospect }) => (
@@ -176,6 +193,7 @@ const ProspectsPage = () => {
     };
 
     if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando prospectos...</div>;
+    if (loadError) return <LoadError error={loadError} />;
 
     return (
         <div className="flex flex-col gap-5">

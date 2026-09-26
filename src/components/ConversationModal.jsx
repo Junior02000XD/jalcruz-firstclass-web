@@ -56,6 +56,9 @@ const ConversationModal = ({ prospect, isOpen, onClose, onChanged }) => {
         if (!prospectId) return;
         setCargando(true);
         setError(null);
+        // Sin esto, al abrir otro prospecto se veían los mensajes del anterior
+        // hasta que llegaba la respuesta (y para siempre si fallaba).
+        setMensajes([]);
         try {
             const { data } = await api.get(`/prospects/${prospectId}/messages`);
             setMensajes(data);

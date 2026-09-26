@@ -50,8 +50,10 @@ const WorkersPage = () => {
             };
 
             if (editingWorker) {
-                // Modo Edición
-                await api.put(`/people/${editingWorker.person_id}`, {
+                // Modo Edición. PATCH y no PUT: el PUT asigna todos los campos y
+                // este formulario no tiene ciudad ni complemento del CI, así que
+                // cada edición los borraba.
+                await api.patch(`/people/${editingWorker.person_id}`, {
                     first_name: payloadData.first_name,
                     last_name: payloadData.last_name,
                     ci: payloadData.ci,
@@ -82,7 +84,7 @@ const WorkersPage = () => {
             fetchWorkers();
             handleCloseModal();
         } catch (error) {
-            alert("Error al guardar el trabajador. Revisa si el CI o Email ya existen.");
+            alert(error.response?.data?.message || "Error al guardar el trabajador.");
             console.error(error);
         }
     };
@@ -207,8 +209,8 @@ const WorkersPage = () => {
                                         </td>
                                         <td className="px-6 py-3">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border
-                                                ${worker.reliability === 'Alta' || worker.reliability === 'Excelente' ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200' : 
-                                                  worker.reliability === 'Media' ? 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-200' : 
+                                                ${worker.reliability === 'excelente' || worker.reliability === 'bueno' ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200' : 
+                                                  worker.reliability === 'riesgoso' ? 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-200' : 
                                                   'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200'}`}>
                                                 {worker.reliability}
                                             </span>

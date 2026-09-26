@@ -28,11 +28,13 @@ const MediaGallery = ({ assets, onChanged }) => {
                 data.append('label', file.name.replace(/\.[^.]+$/, ''));
                 await api.post('/media', data, { headers: { 'Content-Type': 'multipart/form-data' } });
             }
-            onChanged();
         } catch (e) {
             setError(e.response?.data?.message || 'No se pudo subir el archivo.');
         } finally {
             setUploading(false);
+            // Siempre: si falla el 2.º de 3, el 1.º ya quedó guardado y tiene que
+            // aparecer, o se vuelve a subir y queda duplicado.
+            onChanged();
         }
     };
 

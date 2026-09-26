@@ -24,3 +24,19 @@ export const Empty = ({ children }) => (
         {children}
     </div>
 );
+
+// Falló la carga inicial de una pantalla. Antes el catch sólo hacía console.error
+// y la pantalla mostraba su estado vacío ("No hay prospectos…"): un error de red
+// se veía igual que un CRM sin datos.
+export const LoadError = ({ error }) => (
+    <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl py-10 px-4 text-center text-sm text-red-700 dark:text-red-300 mt-6">
+        <p className="font-semibold">No se pudieron cargar los datos.</p>
+        <p className="mt-1 text-red-600/80 dark:text-red-300/80">
+            {error?.response?.data?.message || 'Revisá la conexión e intentá de nuevo.'}
+        </p>
+        <button onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold">
+            Reintentar
+        </button>
+    </div>
+);

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
+import { LoadError } from '../../components/ui/Form';
 import Modal from '../../components/ui/Modal';
 import { money, shortDate } from '../../lib/crm';
 import { Plus, Megaphone, Edit2, Trash2, TrendingUp } from 'lucide-react';
@@ -10,6 +11,7 @@ const CampaignsPage = () => {
     const [campaigns, setCampaigns] = useState([]);
     const [roi, setRoi] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState(empty);
@@ -19,7 +21,7 @@ const CampaignsPage = () => {
             const [c, r] = await Promise.all([api.get('/campaigns'), api.get('/reports/marketing-roi')]);
             setCampaigns(c.data);
             setRoi(r.data);
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error(e); setLoadError(e); }
         finally { setLoading(false); }
     }, []);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial de datos al montar
@@ -53,7 +55,7 @@ const CampaignsPage = () => {
             else await api.post('/campaigns', payload);
             setIsOpen(false);
             load();
-        } catch { alert('No se pudo guardar la campaña.'); }
+        } catch (err) { alert(err.response?.data?.message || 'No se pudo guardar la campaña.'); }
     };
 
     const remove = async (id) => {
@@ -62,6 +64,7 @@ const CampaignsPage = () => {
     };
 
     if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando...</div>;
+    if (loadError) return <LoadError error={loadError} />;
 
     return (
         <div className="flex flex-col gap-5">

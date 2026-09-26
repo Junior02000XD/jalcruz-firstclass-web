@@ -6,7 +6,7 @@ const WorkerModal = ({ isOpen, onClose, onSave, editingWorker }) => {
     const [ci, setCi] = useState('');
     const [email, setEmail] = useState('');
     const [birthDate, setBirthDate] = useState('');
-    const [reliability, setReliability] = useState('Alta');
+    const [reliability, setReliability] = useState('bueno');
 
     useEffect(() => {
         if (isOpen) {
@@ -17,14 +17,14 @@ const WorkerModal = ({ isOpen, onClose, onSave, editingWorker }) => {
                 setEmail(editingWorker.person?.email || '');
                 // Cortar la fecha si viene con hora (ej: 1990-01-01T00:00:00)
                 setBirthDate(editingWorker.person?.birth_date ? editingWorker.person.birth_date.split('T')[0] : '');
-                setReliability(editingWorker.reliability || 'excelente');
+                setReliability(editingWorker.reliability || 'bueno');
             } else {
                 setFirstName('');
                 setLastName('');
                 setCi('');
                 setEmail('');
                 setBirthDate('');
-                setReliability('excelente');
+                setReliability('bueno');
             }
         }
     }, [isOpen, editingWorker]);
@@ -35,8 +35,10 @@ const WorkerModal = ({ isOpen, onClose, onSave, editingWorker }) => {
             first_name: firstName, 
             last_name: lastName, 
             ci: ci, 
-            email: email,
-            birth_date: birthDate,
+            // "" no es un valor válido para la API: la fecha vacía daba 400 y el
+            // correo vacío chocaba con el índice único al segundo trabajador.
+            email: email.trim() || null,
+            birth_date: birthDate || null,
             reliability 
         });
     };
@@ -81,10 +83,12 @@ const WorkerModal = ({ isOpen, onClose, onSave, editingWorker }) => {
                     <div>
                         <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Nivel de Confiabilidad</label>
                         <select value={reliability} onChange={(e) => setReliability(e.target.value)} className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                            <option value="Excelente">excelente</option>
-                            <option value="Alta">bueno</option>
-                            <option value="Media">riesgoso</option>
-                            <option value="Baja">No Recomendable</option>
+                            {/* Los valores son los que guarda la API. Con "Alta"/"Media"/"Baja"
+                                la API no los reconocía y guardaba todo como "bueno". */}
+                            <option value="excelente">Excelente</option>
+                            <option value="bueno">Bueno</option>
+                            <option value="riesgoso">Riesgoso</option>
+                            <option value="no_recomendable">No recomendable</option>
                         </select>
                     </div>
 

@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
+import { LoadError } from '../../components/ui/Form';
 import Modal from '../../components/ui/Modal';
-import { money, shortDate } from '../../lib/crm';
+import { money, shortDate, todayLocal } from '../../lib/crm';
 import { Plus, ShoppingCart, Trash2, Receipt, Wallet } from 'lucide-react';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = todayLocal;
 const empty = () => ({ prospect_id: '', product_id: '', enrollment_date: today(), receipt_number: '', commission: '' });
 
 const SalesPage = () => {
@@ -12,6 +13,7 @@ const SalesPage = () => {
     const [prospects, setProspects] = useState([]);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [form, setForm] = useState(empty());
 
@@ -23,7 +25,7 @@ const SalesPage = () => {
             setSales(s.data);
             setProspects(p.data);
             setProducts(pr.data);
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error(e); setLoadError(e); }
         finally { setLoading(false); }
     }, []);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial de datos al montar
@@ -56,6 +58,7 @@ const SalesPage = () => {
     const saleName = (s) => s.prospect?.person ? `${s.prospect.person.first_name} ${s.prospect.person.last_name || ''}`.trim() : `Prospecto #${s.prospect_id}`;
 
     if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando...</div>;
+    if (loadError) return <LoadError error={loadError} />;
 
     return (
         <div className="flex flex-col gap-5">

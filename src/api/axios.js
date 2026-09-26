@@ -20,4 +20,21 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// Token vencido (a las 12 h) o revocado: sin esto, cada pantalla recibía 401,
+// mostraba su estado vacío y la sesión seguía "abierta". Se limpia y se vuelve
+// al login. El propio /login se excluye: ahí un 401 es "credenciales
+// incorrectas" y lo muestra el formulario.
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const url = error.config?.url || '';
+        if (error.response?.status === 401 && !url.endsWith('/login') && localStorage.getItem('token')) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            if (window.location.pathname !== '/login') window.location.assign('/login');
+        }
+        return Promise.reject(error);
+    },
+);
+
 export default api;

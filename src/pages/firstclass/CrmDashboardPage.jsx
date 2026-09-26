@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
+import { LoadError } from '../../components/ui/Form';
 import { PROSPECT_STATUSES, statusMeta, money } from '../../lib/crm';
 import { UserPlus, ShoppingCart, TrendingUp, Users, ArrowRight, Megaphone } from 'lucide-react';
 
@@ -9,6 +10,7 @@ const CrmDashboardPage = () => {
     const [roi, setRoi] = useState([]);
     const [salesCount, setSalesCount] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(null);
 
     useEffect(() => {
         (async () => {
@@ -21,7 +23,7 @@ const CrmDashboardPage = () => {
                 setFunnel(f.data);
                 setRoi(r.data);
                 setSalesCount(e.data.length);
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error(err); setLoadError(err); }
             finally { setLoading(false); }
         })();
     }, []);
@@ -33,6 +35,7 @@ const CrmDashboardPage = () => {
     const maxFunnel = Math.max(1, ...PROSPECT_STATUSES.map((s) => countOf(s.value)));
 
     if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400 mt-10 text-center">Cargando resumen...</div>;
+    if (loadError) return <LoadError error={loadError} />;
 
     return (
         <div className="flex flex-col gap-6">
